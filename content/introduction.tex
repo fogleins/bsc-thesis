@@ -8,10 +8,44 @@
 %
 %A bevezető szokás szerint a diplomaterv felépítésével záródik, azaz annak rövid leírásával, hogy melyik fejezet mivel foglalkozik.
 
-Napjainkban az informatika és az internet életünk szerves részévé vált. 
+Napjainkban az informatika és az internet életünk szerves részévé vált. A számos szolgáltatás folyamatos rendelkezésre állásának biztosítása és a megnövekedett forgalom kiszolgálása jó néhány új technológia kifejlesztését követelte meg.
+
+Dolgozatomban elsősorban egy általános képet szeretnék adni arról, hogy milyen üzemeltetési kihívásokkal kell szembenéznünk, ha egy ilyen szolgáltatás működtetésébe vágjuk a fejszénket. Értekezésemben nem fogok kitérni bizonyos infrastrukturális hátterekre -- mint például a kiszolgálók folyamatos energiaellátásának biztosítása --, ezeket adottnak fogom tekinteni, hiszen ezt egy adatközpontban bérelt hely esetén sem magunknak kell biztosítanunk. A következőkben sokkal inkább az informatikai lehetőségek tárgyalására fogom helyezni a hangsúlyt: hogyan tudunk hatékonyan üzemeltetni több kiszolgálót, milyen módon lehet biztosítani a szolgáltatásaink lehető legnagyobb rendelkezésre állását, és hogyan védhetjük meg adatainkat egy esetlegesen félresikerült rendszerfrissítést követően. Mindezt egy kisebb volumenű tesztrendszerben is be fogom mutatni.
 
 \section{Nagyvállalati környezetek ismertetése}
+A legtöbb hétköznapi felhasználó számára ismeretlen vagy meglepő lehet, hogy maga az internet és az ezen keresztül elérhető szolgáltatások -- gondoljunk például az Ügyfélkapura vagy az internetbank-szolgáltatásokra -- nagyon komplex rendszerek nem csak szoftveres, hanem informatikai infrastruktúra szempontjából is. A legtöbb ilyen szolgáltatás egy adatközpontban lévő szerveren fut, ami a beérkező kérésekre ad válaszokat. Ezt a folyamatot úgy is felfoghatjuk, hogy az ilyen szolgáltatások felhasználói lényegében az adott szolgáltató (a fenti példánál maradva a Magyar Állam és az adott bankok) számítógépeivel kommunikálnak.
+
+Ezek a szervergépek több lényeges különbséggel is bírnak a személyi számítógépekkel szemben. Egyik legfontosabb tulajdonságuk, hogy hibatűrőek bizonyos hardverhibákat illetően: szinte minden főbb komponensből legalább kettő áll rendelkezésre, így ha az egyik meg is hibásodik, akkor a hiba elhárításáig a beépített redundancia miatt a gép képes tovább funkcionálni, általában a felhasználók felé észrevétlenül, míg a gép üzemeltetői figyelmeztetést kapnak a hiba típusáról és a kapcsolódó tennivalókról.
+% TODO: kép redundáns dolgokról (pl. hálózati kártya, PSU), és hibajelző elemekről (pl. CPU fault, RAM-hiba, diszk hiba)
 
 \section{Virtualizáció}
+A fent említett megnövekedett forgalom kiszolgálását hatékonyan lehet kezelni úgy, hogy olyan fizikai számítógépet helyezünk üzembe, mely  több, egymástól független operációs rendszer futtatására is alkalmas. Ilyenkor ezeket a fizikai gépen futó rendszereket virtuális gépeknek (virtual machine, VM) % TODO: rövidítésjegyzékbe
+nevezzük. Egy virtuális gép elkülönített erőforrásokat kap a fizikai géptől, hozzáférhet például bizonyos mennyiségű processzormaghoz, memóriához, illetve külön háttértár-partíciói is lehetnek. A virtualizált hardverek és operációs rendszerek a legtöbb esetben a külvilág felé nem különböztethetőek meg a fizikai számítógépektől, és ezzel a megoldással jelentősen csökkenthető a rendszerek és a hozzájuk szükséges informatikai infrastruktúra üzemeltetésének költsége.
+% TODO: virt-manager screenshot, esetleg virsh xml screenshot
+
+
+\subsection{Teljes virtualizáció és paravirtualizáció összehasonlítása}
+\subsection{Virtuális gépek migrációja}
+\subsection{Konténerizáció}
 
 \section{Logikai kötetkezelés}
+\subsection{Snapshotok, mentések készítése}
+
+
+% TODO: másik fejezetbe + struktúra meghatározása
+\chapter{Saját munka bemutatása}
+
+\section{Kialakítani kívánt környezet meghatározása}
+
+\section{Fizikai gép ismertetése}
+
+\section{Operációs rendszer}
+\subsection{SUSE} % Leap, Slowroll, TW
+\subsection{Debian, Ubuntu}
+
+\section{Gépmenedzsment: Salt}
+\subsection{Más hasonló megoldások}
+
+\section{Monitoring}
+
+\section{Továbbfejlesztési lehetőségek}

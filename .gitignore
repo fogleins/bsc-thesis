@@ -1,0 +1,12 @@
+*.thm
+*.toc
+*.out
+*.log
+*.blg
+*.bbl
+*.aux
+
+*.gz
+*.zip
+
+./.novcs
