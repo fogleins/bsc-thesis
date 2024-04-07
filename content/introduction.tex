@@ -13,6 +13,62 @@ Napjainkban az informatika és az internet életünk szerves részévé vált. A
 Dolgozatomban elsősorban egy általános képet szeretnék adni arról, hogy milyen üzemeltetési kihívásokkal kell szembenéznünk, ha egy ilyen szolgáltatás működtetésébe vágjuk a fejszénket. Értekezésemben nem fogok kitérni bizonyos infrastrukturális hátterekre -- mint például a kiszolgálók folyamatos energiaellátásának biztosítása --, ezeket adottnak fogom tekinteni, hiszen ezt egy adatközpontban bérelt hely esetén sem magunknak kell biztosítanunk. A következőkben sokkal inkább az informatikai lehetőségek tárgyalására fogom helyezni a hangsúlyt: hogyan tudunk hatékonyan üzemeltetni több kiszolgálót, milyen módon lehet biztosítani a szolgáltatásaink lehető legnagyobb rendelkezésre állását, és hogyan védhetjük meg adatainkat egy esetlegesen félresikerült rendszerfrissítést követően. Mindezt egy kisebb volumenű tesztrendszerben is be fogom mutatni.
 
 \section{Nagyvállalati környezetek ismertetése}
+A vállalatok egyre nagyobb hangsúlyt fektetnek az informatikai rendszereik fejlesztésére és karbantartására, üzemeltetésére. Az ezek által nyújtott szolgáltatások sok esetben jelentős könnyebbséget jelentenek egyes üzleti folyamatokban, és a megfelelően automatizált munkafolyamatok csökkentik az egyes munkavállalók által elvégzendő manuális feladatokat. Fontos tisztában lenni azonban azzal, hogy ezek a megoldások csak akkor működnek jól a mindennapi használat során, ha sikerül biztosítani a megfelelő rendelkezésre állást, tehát egy -- a vállalat munkavállalói által a munkához nélkülözhetetlen -- szolgáltatásnak munkaidőben folyamatosan elérhetőnek kell lennie. Előfordulhatnak olyan igények is, amik miatt bizonyos, a vállalat működésének szempontjából nélkülözhetetlen szolgáltatásoknak folyamatosan elérhetőnek kell lenniük, mert a működésük nem munkaidőhöz kötött (ilyen lehet például a szervezet weboldala, illetve levelezőszervere).  Emellett a fent említett informatikai rendszerek karbantartásának is sokszor észrevehetetlennek kell lennie, azaz egy esetleges frissítés nem hátráltathatja a munkavégzést és a rendelkezésre állást. Az ilyen helyzetek kezelésére számos megoldás jött létre, ezek közül néhányat ismertetni fogok a következő fejezetben.
+
+Egy másik fontos szempont a nagyvállalati rendszerek üzemeltetése -- és általában informatikai megoldások üzemeltetése és használata során -- ami napjainkban egyre nagyobb figyelmet kap, az IT-biztonság kérdése. A rendszerüzemeltetőknek tisztában kell lenniük a potenciális veszélyekkel, veszélyforrásokkal és fel kell készülniük egy esetleges támadásra, annak kezelésére. Sokszor hallhatunk a rendszeres biztonsági mentések fontosságáról, és ezek típusairól, követelményeiről. Egy jól bevett gyakorlat például az úgynevezett \textit{\mbox{3-2-1}}~mentési stratégia, ami egy jó kiindulási alapul szolgálhat minden szervezet számára a biztonsági mentésekhez.~\cite{Backblaze321}
+A megoldás neve az alábbi elvekből származik:~\cite{Seagate321}
+\begin{itemize}
+	\item három példány az adatokról,
+	\item két különböző eszközön (akár más típusú adathordozókon, pl. SSD, HDD, mágnesszalag -- ez segít az adathordozóra jellemző esetleges hibák hatásának csökkentésében),
+	\item egy példányt földrajzilag különböző helyen tároljunk (pl. a cég székhelyén legyenek az eredeti adatok és még egy mentés, és egy példányt pedig tároljunk adatközpontban, vagy vegyünk igénybe harmadik féltől biztonságimentés-szolgáltatást).
+\end{itemize}
+
+A biztonsági mentések elvégzésére és automatizálására többféle megoldást választhat a szervezet az igényeihez igazodva. Bevett szokás például, hogy a cégen belüli mentéseket valamilyen mentést támogató vagy akár teljesen automatizáló szoftverrel oldják meg (például Bareos, Bacula, BackupPC). Az ilyen megoldások üzembe helyezése nehezebb lehet, mintha például csak egyéni scriptekkel hajtanánk végre a mentéseket, de hosszabb távon mégis célszerű lehet megfelelően konfigurálni őket, mert könnyebben kezelhetővé teszik egy komplex infrastruktúrában található gépek adatainak mentését, illetve az egyszer megírt konfigurációs fájlok több gépen is felhasználhatóak. Mindezek mellett ezek a szoftverek általában rendelkeznek valamilyen grafikus felhasználói felülettel (pl. webes interfész), amely tovább egyszerűsíti a mentések készítését, valamint szükség esetén a mentés visszaállítását.
+
+% TODO: Bareos web UI kép lecserélése
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[width=150mm, keepaspectratio]{figures/bareos-dashboard.png}
+	\caption{A Bareos biztonsági mentéseket végző program webes felületének részlete. Forrás: \url{https://www.bareos.com/bareos-webui-modules/}}
+	\label{fig:bareos}
+\end{figure}
+
+Nagyvállalati környezetben nem hagyhatjuk ki a RAID-megoldásokat (a népszerű RAID 1 és RAID 6 megoldásokat \az{\ref{fig:raid} ábra} szemlélteti), ha szerverek biztonsági mentéséről beszélünk. Ezek arra adnak lehetőséget, hogy az adatokat több háttértáron (pl. merevlemez vagy SSD) tároljuk úgy, hogy egy esetleges diszk hiba ne okozzon fennakadást a működésben. Fontos tisztában lenni azonban azzal, hogy a RAID-megoldások nem védenek bizonyos veszélyek ellen (például zsarolóvírusok), hiszen az adatok duplikálása valós időben történik, így egy esetleges támadás során a RAID pool-ba bevont összes diszken megváltoznak az adatok, így nem alkalmas a támadás utáni visszaállításra. Emiatt egy RAID pool a \textit{3-2-1} mentési stratégiát alkalmazva csak egyetlen eszköznek tekinthető, hiába több lemezt használunk a mentés során. RAID-elést tehát csak hardveres hibák ellen érdemes használnunk, rosszindulatú támadás esetén ezek nem nyújtanak védelmet az adataink számára.
+
+% TODO: RAID ábra, hivatkozások
+\begin{figure}[!ht]
+%	\centering
+%	\includegraphics[height=70mm, keepaspectratio]{figures/raid1.pdf}
+	
+	\centering
+	\begin{subfigure}{0.3\textwidth}
+		\centering
+		\includegraphics[keepaspectratio, height=52mm]{figures/raid1.pdf}
+	\end{subfigure}
+	\hspace{0.05\textwidth}
+	\begin{subfigure}{0.6\textwidth}
+		\centering
+		\includegraphics[keepaspectratio, height=52mm]{figures/raid6.pdf}
+	\end{subfigure}
+	\caption{RAID 1 és RAID 6 megoldások felépítése \cite{WikiRaidLevels}}
+	\label{fig:raid}
+\end{figure}
+
+%\begin{figure}[h]
+%	\centering
+%	\begin{subfigure}{0.4\textwidth}
+%		\centering
+%		\includegraphics[keepaspectratio, scale=0.18]{figures/raid1}
+%	\end{subfigure}
+%	\hspace{0.075\textwidth}
+%	\begin{subfigure}{0.3\textwidth}
+%		\centering
+%		\includegraphics[keepaspectratio, scale=0.11]{figures/raid1}
+%	\end{subfigure}
+%	\caption{A Qt és a GTK logója}
+%	\label{fig:qtgtklogo}
+%\end{figure}
+
 A legtöbb hétköznapi felhasználó számára ismeretlen vagy meglepő lehet, hogy maga az internet és az ezen keresztül elérhető szolgáltatások -- gondoljunk például az Ügyfélkapura vagy az internetbank-szolgáltatásokra -- nagyon komplex rendszerek nem csak szoftveres, hanem informatikai infrastruktúra szempontjából is. A legtöbb ilyen szolgáltatás egy adatközpontban lévő szerveren fut, ami a beérkező kérésekre ad válaszokat. Ezt a folyamatot úgy is felfoghatjuk, hogy az ilyen szolgáltatások felhasználói lényegében az adott szolgáltató (a fenti példánál maradva a Magyar Állam és az adott bankok) számítógépeivel kommunikálnak.
 
 Ezek a szervergépek több lényeges különbséggel is bírnak a személyi számítógépekkel szemben. Egyik legfontosabb tulajdonságuk, hogy hibatűrőek bizonyos hardverhibákat illetően: szinte minden főbb komponensből legalább kettő áll rendelkezésre, így ha az egyik meg is hibásodik, akkor a hiba elhárításáig a beépített redundancia miatt a gép képes tovább funkcionálni, általában a felhasználók felé észrevétlenül, míg a gép üzemeltetői figyelmeztetést kapnak a hiba típusáról és a kapcsolódó tennivalókról.
@@ -58,27 +114,3 @@ Lehetőség van azonban a háttértárak tartalmát elhagyva is átmozgatni egy 
 \section{Logikai kötetkezelés}
 \subsection{Snapshotok, mentések készítése}
 
-
-% TODO: másik fejezetbe + struktúra meghatározása
-\chapter{Saját munka bemutatása}
-
-\section{Kialakítani kívánt környezet meghatározása}
-Dolgozatomban egy kisebb léptékű, de a fontosabb elvek ismertetését kellő mértékben lehetővé tevő tesztkörnyezetet fogok kialakítani és részletesen bemutatni. A tesztkörnyezetben egy fizikai gépen (virtual host, dom0) fogok virtuális gépeket kialakítani a KVM hypervisor segítségével. Ezen környezet célja, hogy betekintést engedjen a nagyvállalati környezetek kialakításának fontosabb lépéseibe. Ahogy arról a bevezetés során szó volt, ilyen környezetekben nem ritka, hogy több száz vagy több ezer gépet kell kezelnünk. Nyilvánvaló, hogy ilyen nagyságrendű rendszert nem lehet kizárólag manuális megoldásokkal kezelni, nem várhatjuk el a rendszergazdáktól és az üzemeltetést végző mérnököktől, hogy egy-egy frissítést minden gépen külön-külön telepítsenek: ehhez sok esetben nem is adottak a lehetőségek, hiszen a legtöbb ilyen számítógép egy adatközpontban fut, ahova a biztonsági előírások miatt nem tudna minden munkatárs bejutni, továbbá körülményes lenne az egyes számítógépekhez külön-külön perifériákat csatlakoztatni, amire például a nagyobb operációsrendszer-verzióváltások során szükség lehetne az úgynevezett \textit{offline upgrade}-ek miatt -- ilyen helyzetekben a távoli elérés (pl. SSH, VNC) % TODO: rövidítésjegyzékbe
-sem jelent megoldást.
-
-Mindezen okok miatt a dolgozatomban egy infrastruktúramenedzsment eszközt fogok használni, amivel növelhető az egyes kiszolgálók karbantartásának hatékonysága mind fizikai, mind pedig virtuális gépek esetén.
-
-\section{Fizikai gép ismertetése}
-
-\section{Operációs rendszer}
-Értekezésemben nagy szerepe lesz a választott operációs rendszereknek, hiszen ezek fognak a virtualizációs rendszer alapjául szolgálni, valamint képesnek kell lennünk a gépek távoli menedzsmentjére is, így mindenképpen olyan megoldásra van szükség, amely jól támogatott a választott infrastruktúramenedzsment eszköz által. Fontos szempont volt továbbá, hogy a tesztkörnyezet a lehetőségekhez mérten jól reprezentálja a nagyvállalati környezetben használatos rendszereket, így sok olyan OS-verzió kikerült a lehetőségek közül, amelyek ugyan népszerűek például asztali megoldásként, de egyes nagyvállalati szoftverek (legyen az adatbázismotor, vagy bizonyos eszközvezérlők, driverek) hivatalosan nem támogatottak rajtuk. Emiatt az operációs rendszerek kiválasztása során körültekintően jártam el, több Linux-disztribúció is szóba került, az ezekről született konklúziót itt foglalom össze néhány mondatban.
-
-\subsection{Debian, Ubuntu}
-\subsection{SUSE} % Leap, Slowroll, TW
-
-\section{Gépmenedzsment: Salt}
-\subsection{Más hasonló megoldások}
-
-\section{Monitoring}
-
-\section{Továbbfejlesztési lehetőségek}

@@ -1,0 +1,26 @@
+% !TeX spellcheck = hu_HU
+% !TeX encoding = UTF-8
+
+% TODO: struktúra meghatározása
+\chapter{Saját munka bemutatása}
+
+\section{Kialakítani kívánt környezet meghatározása}
+Dolgozatomban egy kisebb léptékű, de a fontosabb elvek ismertetését kellő mértékben lehetővé tevő tesztkörnyezetet fogok kialakítani és részletesen bemutatni. A tesztkörnyezetben egy fizikai gépen (virtual host, dom0) fogok virtuális gépeket kialakítani a KVM hypervisor segítségével. Ezen környezet célja, hogy betekintést engedjen a nagyvállalati környezetek kialakításának fontosabb lépéseibe. Ahogy arról a bevezetés során szó volt, ilyen környezetekben nem ritka, hogy több száz vagy több ezer gépet kell kezelnünk. Nyilvánvaló, hogy ilyen nagyságrendű rendszert nem lehet kizárólag manuális megoldásokkal kezelni, nem várhatjuk el a rendszergazdáktól és az üzemeltetést végző mérnököktől, hogy egy-egy frissítést minden gépen külön-külön telepítsenek: ehhez sok esetben nem is adottak a lehetőségek, hiszen a legtöbb ilyen számítógép egy adatközpontban fut, ahova a biztonsági előírások miatt nem tudna minden munkatárs bejutni, továbbá körülményes lenne az egyes számítógépekhez külön-külön perifériákat csatlakoztatni, amire például a nagyobb operációsrendszer-verzióváltások során szükség lehetne az úgynevezett \textit{offline upgrade}-ek miatt -- ilyen helyzetekben a távoli elérés (pl. SSH, VNC) % TODO: rövidítésjegyzékbe
+sem jelent megoldást.
+
+Mindezen okok miatt a dolgozatomban egy infrastruktúramenedzsment eszközt fogok használni, amivel növelhető az egyes kiszolgálók karbantartásának hatékonysága mind fizikai, mind pedig virtuális gépek esetén.
+
+\section{Fizikai gép ismertetése}
+
+\section{Operációs rendszer}
+Értekezésemben nagy szerepe lesz a választott operációs rendszereknek, hiszen ezek fognak a virtualizációs rendszer alapjául szolgálni, valamint képesnek kell lennünk a gépek távoli menedzsmentjére is, így mindenképpen olyan megoldásra van szükség, amely jól támogatott a választott infrastruktúramenedzsment eszköz által. Fontos szempont volt továbbá, hogy a tesztkörnyezet a lehetőségekhez mérten jól reprezentálja a nagyvállalati környezetben használatos rendszereket, így sok olyan OS-verzió kikerült a lehetőségek közül, amelyek ugyan népszerűek például asztali megoldásként, de egyes nagyvállalati szoftverek (legyen az adatbázismotor, vagy bizonyos eszközvezérlők, driverek) hivatalosan nem támogatottak rajtuk. Emiatt az operációs rendszerek kiválasztása során körültekintően jártam el, több Linux-disztribúció is szóba került, az ezekről született konklúziót itt foglalom össze néhány mondatban.
+
+\subsection{Debian, Ubuntu}
+\subsection{SUSE} % Leap, Slowroll, TW
+
+\section{Gépmenedzsment: Salt}
+\subsection{Más hasonló megoldások}
+
+\section{Monitoring}
+
+\section{Továbbfejlesztési lehetőségek}
