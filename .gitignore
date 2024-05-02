@@ -5,8 +5,19 @@
 *.blg
 *.bbl
 *.aux
+*.acn
+*.acr
+*.alg
+*.glg
+*.glo
+*.gls
+*.glsdefs
+*.idx
+*.ilg
+*.ind
+*.ist
 
 *.gz
 *.zip
 
-./.novcs
+.novcs
