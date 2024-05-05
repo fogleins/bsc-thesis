@@ -9,6 +9,9 @@
 
 \ifxetexorluatex
   \usepackage{fontspec}
+  % xelatex-nél elég a fontspec include-olása
+  % lásd: https://tex.stackexchange.com/questions/462664/warnings-when-using-babel-with-lualatex
+  \def\magyarOptions{suggestions=no}  
 \else
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
@@ -43,7 +46,6 @@
 \usepackage[toc, acronyms]{glossaries}
 \usepackage{makeidx}
 \usepackage{tocbibind}
-\renewcommand{\acronymname}{Rövidítésjegyzék}
 
 \makeglossaries
 \makeindex
