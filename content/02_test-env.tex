@@ -90,8 +90,30 @@ A Cockpit felülete gyors áttekintést nyújt a rendszer állapotáról, továb
 
 Az openSUSE-projekt kétféle MicroOS-verziót tart karban: a MicroOS-t, mely egy rolling release modellt követ, azaz a rendszer folyamatosan (akár napi szinten) kapja meg a frissítéseket, így több, kisebb verzióugrással tartható karban, míg az openSUSE Leap Micro a \acrlong{sle} Micro kiadási modelljét követi, és a Leap-hez hasonlóan bináris kompatibilitást garantál a két verzió között. A tesztkörnyezethez a stabilitás és kompatibilitás miatt a Leap Micro változatot választottam.
 
+\section{Hálózati topológia}
+Az infrastruktúra működésében fontos szerepe van a hálózatnak: a távoli elérésen túl biztosítani kell a szoftvercsomagok elérhetőségét is, valamint a későbbiekben látni fogjuk, hogy a monitoring rendszer is hálózation keresztül gyűjti az adatokat. Ezek miatt lényeges volt, hogy a gépek tudjanak kommunikálni egymással és a külvilággal. A tesztkörnyezet hálózati felépítését \aref{fig:test-env-network} ábra szemlélteti.
 
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=15cm]{figures/halozat.pdf}
+	\caption{A tesztkörnyezet hálózati felépítése.}
+	\label{fig:test-env-network}
+\end{figure}
 
+\subsection{Bridge-dzselt hálózati interfész}
+A virtualizált környezetek sajátossága, hogy a virtuális gépek alapesetben egy -- a virtualizációt biztosító szoftver által kezelt -- hálózatra tudnak csatlakozni, a fizikai gép hálózatán nincs lehetőségük kommunikálni. Ez a megoldás általában külön konfiguráció nélkül elérhető, viszont hátránya, hogy a külvilág felé gyakorlatilag láthatatlanná válik a virtuális gép. Bár ez porttovábbítással és a tűzfalbeállítások, valamint az érintett szolgáltatások módosításával orvosolható, a hálózati interfészek bridge-dzselése egy szélesebb körben használható megoldást nyújt.
+
+Egy bridge-dzselt interfész lehetővé teszi a virtuális gépek számára, hogy a gazdagéppel azonos hálózaton kommunikáljanak, azaz ugyanúgy működjenek, mintha minden virtuális gép virtualizált hálózati interfészéhez tartozna egy dedikált hálózati csatlakozó a fizikai gépen, mely egyazon hálózathoz csatlakozik. Ehhez a gazdagép hálózati beállításaiban létre kell hozni egy hálózati híd eszközt, és a használni kívánt interfészt be kell állítani bridge masterként.
+Ezeket a beállításokat egyszerűen elvégezhetjük parancssori felületen, illetve a YaST segítségével is (\ref{fig:yast-net-bridge} ábra). Az így létrejött virtuális eszköz az OSI-modell szerinti második szinten, az adatkapcsolati rétegben működik a hardveres switch-ekhez hasonlóan~\cite{SUSENetBridge}.
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=15cm]{figures/yast-br0.png}
+	\caption{A tesztkörnyezethez beállított hálózati bridge alapjául szolgáló eth1 interfész beállításainak részletei a YaST konfigurációs program parancssori változatában. Látható, hogy az interfész a br0 bridge eszközhöz van társítva, és emiatt nincs hozzárendelve IP-cím.}
+	\label{fig:yast-net-bridge}
+\end{figure}
+
+\section{Virtuális gépek telepítése}
 
 \section{Gépmenedzsment: Salt}
 
