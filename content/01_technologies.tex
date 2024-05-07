@@ -24,7 +24,7 @@ A virtualizációs hosztgépek jellemzője, hogy számos processzorral rendelkez
 \subsection{Áttekintés}
 A virtualizáció egy olyan technológia, amely lehetővé teszi, hogy egy fizikai számítógépen (az úgynevezett virtuális host-on) több, akár a hosztgép rendszerétől eltérő operációs rendszert futtassunk. Ehhez szükség van egy \gls{hypervisor}-ra, ami az operációs rendszer legfőbb virtualizációt támogató komponense~\cite{Sles15virt}. Ez a szoftver közvetlenül a szerver hardverén fut, és ez biztosítja a virtuális gépek számára szükséges hardveres erőforrásokat virtualizált hardverinterfészeken keresztül. Szintén a \gls{hypervisor} felelős az erőforrások kezeléséért, tehát ennek a komponensnek kell biztosítania a virtuális gép számára beállított mennyiségű memória, processzor és háttértár rendelkezésre állását is. Ezek a beállítások a legtöbb modern \gls{hypervisor} esetében elvégezhetőek grafikus felületen is, erre ad példát \aref{fig:vboxsettings} ábra.
 
-Napjainkban a legelterjedtebb hypervisorok közé tartozik a vmWare ESXi, a XEN és a KVM, melyek részletesebb bemutatását \aref{sect:hypervisor-comparision} alfejezet tartalmazza.
+Napjainkban a legelterjedtebb hypervisorok közé tartozik a VMware ESXi, a XEN és a KVM, melyek részletesebb bemutatását \aref{sect:hypervisor-comparision} alfejezet tartalmazza.
 
 \begin{figure}[!ht]
 	\centering
