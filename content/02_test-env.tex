@@ -101,6 +101,7 @@ Az infrastruktúra működésében fontos szerepe van a hálózatnak: a távoli 
 \end{figure}
 
 \subsection{Bridge-dzselt hálózati interfész}
+\label{sect:net-bridge}
 A virtualizált környezetek sajátossága, hogy a virtuális gépek alapesetben egy -- a virtualizációt biztosító szoftver által kezelt -- hálózatra tudnak csatlakozni, a fizikai gép hálózatán nincs lehetőségük kommunikálni. Ez a megoldás általában külön konfiguráció nélkül elérhető, viszont hátránya, hogy a külvilág felé gyakorlatilag láthatatlanná válik a virtuális gép. Bár ez porttovábbítással és a tűzfalbeállítások, valamint az érintett szolgáltatások módosításával orvosolható, a hálózati interfészek bridge-dzselése egy szélesebb körben használható megoldást nyújt.
 
 Egy bridge-dzselt interfész lehetővé teszi a virtuális gépek számára, hogy a gazdagéppel azonos hálózaton kommunikáljanak, azaz ugyanúgy működjenek, mintha minden virtuális gép virtualizált hálózati interfészéhez tartozna egy dedikált hálózati csatlakozó a fizikai gépen, mely egyazon hálózathoz csatlakozik. Ehhez a gazdagép hálózati beállításaiban létre kell hozni egy hálózati híd eszközt, és a használni kívánt interfészt be kell állítani bridge masterként.
@@ -113,7 +114,63 @@ Ezeket a beállításokat egyszerűen elvégezhetjük parancssori felületen, il
 	\label{fig:yast-net-bridge}
 \end{figure}
 
-\section{Virtuális gépek telepítése}
+\section{Virtualizációs komponensek telepítése}
+A tesztkörnyezet szoftveres alapját a virtualizációs megoldások adják. Ebben az alfejezetben ismertetem a fizikai gép előkészítését és a virtuális gépek telepítésének folyamatát, valamint az ezekhez kapcsolódó beállítási lépéseket, kitérve például a particionálás folyamatára és a virtuális gépek terminálos elérésére.
+
+\subsection{Hosztgép konfigurálása}
+A virtualizációs környezetet futtató számítógépre az openSUSE Leap 15.5-ös verzióját telepítettem, mely a tesztkörnyezet kialakításakor a disztribúció legfrissebb stabil elérhető változata. A telepítés során a gép szerepének (system role) a szerver opciót választottam. Ez a felhasználási céloknak teljesen megfelelt, hiszen ez a megoldás is egy jól felszerelt operációs rendszert telepít, csak asztali környezet nélkül. Mivel a szervert elsősorban konzolos felületen, \acrshort{ssh}-n keresztül szerettem volna használni, ezért ez nem jelentett gondot. Sőt, a tesztkörnyezet szempontjából előnnyel is járt: a rendszerre nem volt szükséges az asztali környezet működéséhez elengedhetetlen csomagok telepítése, ami nem csak a tárhellyel való takarékoskodásban segített, de a későbbiekben is könnyítette a karbantartási folyamatokat, mert kevesebb csomagot kellett frissíteni és így az esetleges támadási felület (sérülékenységek száma) is kisebb volt. Lényeges azonban megjegyezni, hogy az X11 könyvtár a szerver csomag részeként is telepítésre került, így adott volt a lehetőség X~forwarding\footnote{Távoli szerveren futtatott, grafikus felülettel rendelkező alkalmazások ablakának a kliensgép képernyőjén való megjelenítését lehetővé tevő technológia.} használatára.
+
+A hálózatkezeléshez -- a virtuális gépek hálózati elérését lehetővé teendő -- \aref{sect:net-bridge}.~alfejezetben bemutatott bridge-dzselt hálózati interfészt állítottam be. Ehhez az alapértelmezett beállításokhoz képest annyit kellett módosítani, hogy a bridge-dzselt eszköz a fizikai interfészen keresztül kommunikáljon, illetve hogy a virtualizációs hosztnak kiosztott \texttt{10.151.7.5}-ös IP-címet ne az \texttt{eth1} fizikai interfész kapja meg, hanem az újonnan létrehozott \texttt{br0} eszköz. Ezt követően a számítógép a korábban megszokott módon tudott a hálózaton kommunikálni, viszont lehetővé vált, hogy a virtuális gépek is hozzáférjenek a fizikai gép hálózatához a bridge eszközön keresztül.
+
+A hálózaton kívül a másik lényeges tervezői döntés a logikai kötetek (\acrshort{lvm}) alkalmazása volt. Ez a gyakorlatban azt jelentette, hogy a boot partíció kivételével minden egyéb kötetet \acrshort{lvm}-kötetként hoztam létre. Ennek legfőbb előnye számomra a kötetek méretének rugalmas kezelése volt, melyről \aref{sect:lvm}. alfejezetben írtam bővebben. Emellett lehetőséget biztosít pillanatképek készítésére is, melyek készítése például \acrshort{os}-frissítések előtt lehet releváns, és nagyban megkönnyíti rendszer korábbi állapotának helyreállítást, ha valami hiba jelentkezik a folyamat során. A kötetkiosztás úgy történt, hogy minden virtuális gép kapott egy külön \acrshort{lvm}-kötetet, amit egy egyedülálló tárolóeszközként érzékelt, és ezt használhatta az adatok tárolására, akár további particionálás mellett is.
+
+A kezdetleges konfigurációt követően telepítettem a \acrshort{kvm} \gls{hypervisor}t és a virtuális gépek kezeléséhez szükséges csomagokat. Ehhez openSUSE-disztribúciókon külön ún.~pattern áll a rendelkezésünkre. Ez azt jelenti, hogy nem kell megadnunk minden telepítendő csomagot, hanem elég a \texttt{kvm\_server} és a \texttt{kvm\_tools} pattern-ök telepítése, és ezek automatikusan telepítésre jelölik a teljes értékű \acrshort{kvm}-szerverhez szükséges csomagokat, emellett néhány hasznos segédprogramot (pl. virt-manager, virsh) is magukkal hoznak. Ezen csomagok telepítését követően minden előfeltétel adottá vált a virtuális gépek telepítéséhez.
+
+
+\subsection{Virtuális gépek telepítése}
+\acrshort{vm}-ek telepítéséhez elsősorban a \texttt{virt-install} parancsot használtam. Ez a program lehetővé teszi az összes lényeges paraméter megadását, majd távoliasztal-protokoll használatával (alapértelmezetten \acrshort{spice}, de választhatjuk például a \acrshort{vnc}-t is) megjeleníti a virtuális gép kijelzőjét egy ablakban, melynek segítségével személyre szabhatjuk a telepítést és telepíthetjük az operációs rendszert. A távoli asztalon keresztüli elérés csak a megfelelő környezet, pl. \acrshort{ssh} használata esetén, X~forwardinggal működik. Amennyiben a virt-install nem talál kijelzőt, akkor a telepítés parancssoron keresztül történik. A virt-install sikeres futás esetén egy virtuálisgép-leíró XML-fájlt hoz létre, mely a gép összes paraméterét tárolja~(\ref{lst:virshxml}.~kódrészlet). A későbbiekben a \acrshort{vm} konfigurációjának módosítása esetén ezt a fájlt kell módosítanunk (akár szövegszerkesztővel, akár GUI-n, például virt-manager-rel). A leírófájl a virtuális gép migrációjához is használható.
+
+Azonban még mielőtt a konkrét telepítést elkezdhetnénk, létre kell hoznunk azt a partíciót, melyre a virtuális gép adatai kerülnek. Esetemben ez azt jelentette, hogy az egyes virtuális gépekhez új \acrshort{lvm}-köteteket kellett létrehoznom. Mivel a logikai kötetek számára otthont adó partíciót és a kapcsolódó fizikai kötetet és kötetcsoportot már a hoszt~\acrshort{os} telepítésekor létrehoztam, ezért a~\acrshort{vm}-ek telepítése során elég volt csak egy-egy logikai kötetet~(\acrshort{lv}) létrehoznom, melyhez az \texttt{lvcreate} parancsot használtam~(\ref{lst:lvcreate}~kódrészlet).
+Emellett telepítési forrást is meg kellett adni, melyhez én telepítő lemezképeket használtam. Ilyenkor a~\acrshort{vm} telepítésekor fel kell venni egy virtuális CD-meghajtót a géphez, és meg kell adni a telepítési forrás elérési útját.
+
+\begin{lstlisting}[caption=Virtuális gépek logikai kötetének létrehozásához használt parancs.,label=lst:lvcreate]
+	lvcreate -L 20G --name kvm-monitoring vg1
+\end{lstlisting}
+
+Ezen túl meg kell adni a gép fontosabb paramétereit is (pl. processzorok száma, memória mennyisége), hogy milyen erőforrásokkal szeretnénk telepíteni azt. A tesztkörnyezetben használt gépek telepítése során elsősorban a dokumentációban ismertetett rendszerkövetelményeket vettem figyelembe az erőforrások meghatározásánál, de mivel aránylag sok erőforrás állt rendelkezésemre, így előfordult, hogy a számítási műveletek gyorsítása érdekében a szükségesnél több magot adtam a virtuális gépeknek. Mivel a~\acrshort{vm}-ek konfigurációja szabadon változtatható a későbbiekben is (esetleg a gép újraindítása szükséges az érvényre jutásukhoz), ezért ez nem jelentett problémát a későbbiekben sem. Emellett a~\acrshort{kvm} támogatja a memória és processzor erőforrások \gls{overcommit}-olását is, azaz nem jelent problémát, ha esetleg a fizikai gépen elérhetőnél több \acrshort{cpu}-erőforrást osztottunk ki a virtuális gépek számára, bár ennek használatára a dolgozathoz készített tesztkörnyezetben nem volt szükség~\cite{RedHatKvmOvercommit}.
+A tesztkörnyezet egyik virtuális gépének telepítéséhez használt parancsot \aref{lst:virtinstall} kódrészlet mutatja be.
+
+\begin{lstlisting}[caption=Virtuális gép telepítése a virt-install segédprogrammal.,label=lst:virtinstall]
+	virt-install --name uyuni --memory 32768 --vcpus 12 --cdrom /mnt/openSUSE-Leap-15.5-NET-x86_64-Media.iso --os-variant opensuse15.5 --disk /dev/vg1/kvm-uyuni
+\end{lstlisting}
+
+\begin{lstlisting}[caption=Virtuális gép leírófájljának részlete.,label=lst:virshxml]
+	<memory unit='KiB'>33554432</memory>
+	<currentMemory unit='KiB'>33554432</currentMemory>
+	<vcpu placement='static'>12</vcpu>
+	<resource>
+		<partition>/machine</partition>
+	</resource>
+	<os>
+		<type arch='x86_64' machine='pc-q35-7.1'>hvm</type>
+	</os>
+	...
+	<devices>
+		<emulator>/usr/bin/qemu-system-x86_64</emulator>
+		<disk type='block' device='disk'>
+			<driver name='qemu' type='raw' cache='none' io='native' discard='unmap'/>
+			<source dev='/dev/vg1/kvm-uyuni' index='1'/>
+			<backingStore/>
+			<target dev='vda' bus='virtio'/>
+			<boot order='2'/>
+			<alias name='virtio-disk0'/>
+			<address type='pci' domain='0x0000' bus='0x04' slot='0x00' function='0x0'/>
+		</disk>
+	...
+	</devices>
+\end{lstlisting}
+
+A virtuális gép operációs rendszerének telepítése során ki kellett alakítani a kívánt partíciókiosztást, mely a felhasználási körtől függően változott, de alapvetően mindenhol \acrshort{lvm}-alapú kötetkiosztást alkalmaztam. Emellett szükséges volt bizonyos hálózati beállítások (pl.~\acrshort{dns}-szerver címe, gépnév) módosítása is. Ezeken felül és az alapvető adatok~--~mint~például felhasználói fiókok létrehozása, lokalizációs beállítások konfigurálása~--~megadásán túl mást nem volt szükséges átállítani a telepítés során. A sikeres installációt követően foghattam hozzá a virtuális gépeken futó szolgáltatások telepítéséhez, melyeket a következő fejezetekben fogok részletesen ismertetni.
 
 \section{Gépmenedzsment: Salt}
 

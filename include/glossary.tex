@@ -13,6 +13,8 @@
 \newacronym{sle}{SLE}{SUSE Linux Enterprise}
 \newacronym{cpu}{CPU}{central processing unit}
 \newacronym{ssd}{SSD}{solid state drive}
+\newacronym{spice}{SPICE}{Simple Protocol for Independent Computing Environments}
+\newacronym{dns}{DNS}{domain name system}
 
 \newglossaryentry{hypervisor}
 {
@@ -30,4 +32,10 @@
 {
 	name=libvirt,
 	description={Nyílt forráskódú virtualizációs \acrshort{api}, mely lehetőséget biztosít több \gls{hypervisor} (pl.~\acrshort{kvm}, XEN, VMware ESXi) egységes interfészen keresztüli kezelésére}
+}
+
+\newglossaryentry{overcommit}
+{
+	name=overcommit,
+	description={Hatékonyabb erőforráskihasználást lehetővé tevő technológia egyes \gls{hypervisor}okban. Használatával a virtuális gépek számára több virtuális erőforrást oszthatunk ki, mint amennyi ténylegesen rendelkezésre áll a gazdagépen. Alapvetően előnyös lehet a használata, mivel a \acrshort{vm}-ek általában nem használják ki a nekik biztosított erőforrások 100\%-át, de a gazdagép túlterhelése esetén jelentős teljesítményvisszaeséssel járhat, ezért fontos, hogy használata esetén még körültekintőbben monitorozzuk rendszereinket~\cite{RedHatKvmOvercommit}}
 }
