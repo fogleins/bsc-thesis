@@ -82,3 +82,85 @@ Ezen okokból a spacewalk kötet online megnövelése mellett döntöttem. Első
 	Allocation:     225145827328
 	Physical:       375809638400
 \end{lstlisting}
+
+\section{Kliensek felvétele}
+A kliensek felvétele során mutatkozott meg az Uyuni egy kisebb hátránya az előfizetés-alapú SUSE~Manager-rel szemben. Míg az előfizetésért cserébe előre konfigurált csatornákat (ún. Product-okat) kapunk, addig az Uyunihoz ez nem áll rendelkezésünkre, a kliensek felvételéhez használt bootstrap megoldás pedig csak ezekkel működik együtt. A bootstrap folyamat sikeres futtatása többszörös próbálkozást követően sem sikerült~(\ref{fig:uyuni-bootstrap-error}. ábra). Emiatt az elsődleges konfiguráció során manuálisan kellett gondoskodnom a szükséges csomagok telepítéséről és az ezekhez kapcsolódó beállítások elvégzéséről. A gyakorlatban ez azt jelentette, hogy a kezelni kívánt rendszerekre telepíteni kellett a \texttt{venv-salt-minion} csomagot, emellett szükséges volt két konfigurációs fájl létrehozása is, melyek a Salt minion azonosítóját (amilyen néven a gép megjelenik az~Uyuni felületén) és a Salt master (az~Uyuni szerver) IP-címét tartalmazták~(\ref{lst:salt-client-config}.~kódrészlet).
+Ezt követően a kapcsolódó Salt service újraindításával a kliens kapcsolatot kezdeményezett a Salt masterrel, és az Uyuni felületén lehetővé vált a kliens csatlakozási kérelmének elfogadása. A kérelem elfogadását követően az Uyuni lekérdezett néhány adatot a kliens állapotáról (pl. telepített csomagok, hardveres erőforrások), ez után az újonnan bevont rendszer már teljes körűen kezelhetővé vált az Uyuni felületén keresztül.
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=15cm]{figures/uyuni-bootstrap-error.png}
+	\caption{Előfizetés nélkül nem érhetőek el a product repository-k.}
+	\label{fig:uyuni-bootstrap-error}
+\end{figure}
+
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=15cm]{figures/uyuni-system-details.png}
+	\caption{A bevont rendszer adatainak frissítését követően számos részletet láthatunk a gépről, és mi is adhatunk meg bizonyos adatokat.}
+	\label{fig:uyuni-system-details}
+\end{figure}
+
+\begin{lstlisting}[caption=A manuális konfiguráció során létrehozott állományok.,label=lst:salt-client-config,escapechar=?]
+	?\underline{10-151-7-5:/etc/venv-salt-minion/minion.d \#}? cat id.conf
+	id: kvm.spot.internal
+	?\underline{10-151-7-5:/etc/venv-salt-minion/minion.d \#}? cat master.conf
+	master: 10.151.7.1
+\end{lstlisting}
+
+\subsection{Rendszertípusok és Salt Formulák}
+A kezdeti információgyűjtés során az infrastruktúramenedzsment-rendszer megpróbálja meghatározni a rendszer típusát (fizikai gép, virtualizációs gazdagép, virtuális gép). Ezeket később mi is megadhatjuk, illetve a betöltött szereptől függően úgynevezett Salt Formulákat rendelhetünk hozzájuk. Ezek olyan előre elkészített Salt state fájlok, melyek a gyakran használt beállítások megadását igyekszenek egyszerűbbé tenni.
+
+Munkám során én két rendszertípust használtam: a virtualizációs hoszthoz és a monitorozott rendszerhez kapcsolódót. A \textit{Virtualization Host} Formula néhány alapvető beállítást (pl. hálózati konfiguráció) ad meg a rendszeren, azonban ez a felhasználási céljaimnak nem felelt meg teljes mértékben, így a beállításokat egy saját Salt state-tel módosítottam, mely a~\ref{lst:vhost-salt-formula-mod}~kódrészleten látható. A példában a könnyebb átláthatóság érdekében a módosítandó fájl tartalmát a state fájlban definiáltam, de lehetőség van ennek egy központilag, az Uyunin keresztül kezelt konfigurációs fájl hivatkozásával való megadására is.
+A \textit{Monitored Host} beállításait a következő fejezetben tárgyalom részletesen.
+
+\begin{lstlisting}[caption=A hálózati konfiguráció frissítését végző Salt state.,label=lst:vhost-salt-formula-mod]
+update_/etc/sysconfig/network/ifcfg-br0:
+	file.managed:
+		- name: /etc/sysconfig/network/ifcfg-br0
+		- user: root
+		- group: root
+		- mode: 644
+		- content: |
+			BOOTPROTO='dhcp'
+			STARTMODE='onboot'
+			ZONE='public'
+			BRIDGE='yes'
+			BRIDGE_PORTS='eth1'
+			BRIDGE_STP='off'
+\end{lstlisting}
+
+\section{Erőforrásigény mérése}
+A fejezet elején ismertetett komoly erőforrásigény miatt kíváncsi voltam a hardver adta lehetőségek tényleges kihasználtságára. Mivel ekkor még nem állítottam be a monitoring rendszert~(ehhez előbb be kellett fejeznem az Uyuni konfigurációját), ezért egy saját Python scriptet készítettem az erőforrások állapotának figyelésére.
+
+A mérést egy telepítőforrás-tükrözés során végeztem, hiszen ekkor volt a legnagyobb a rendszer erőforrásigénye. A jelentős mértékű hálózati adatforgalmat követően -- melyet a szoftvercsomagok letöltése idéz elő -- a rendszer hosszas adatbázis-indexelést hajt végre, mely során a processzormagok kihasználtsága közel 100\%-os. A mérési adatokból készített grafikon~\aref{fig:reposync-chart}.~ábrán látható.
+
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=15cm]{figures/reposync-leap-oss-grid.pdf}
+	\caption{Az Uyunit futtató virtuális gép terheltsége az egyik telepítőforrás tükrözése során.}
+	\label{fig:reposync-chart}
+\end{figure}
+
+Egy másik, rövidebb szinkronizálás során a virtuális gépeket futtató gazdagépen figyeltem meg a mérőszámok változását. Ennek érdekessége, hogy így lehetőségem nyílt a processzormagok hőmérsékletének nyomon követésére is. Ezáltal megfigyelhetjük a szervergép hűtésének hatékonyságát: míg a~\acrshort{cpu} kihasználtsága körülbelül 50\%-kal~nőtt, a processzor hőmérséklete csupán 8°C-kal változott, ami körülbelül 20\%-os~növekedést jelent. A mérés eredményét~\aref{fig:reposync-vhost-cputemp}.~ábra mutatja be. Érdemes megjegyezni, hogy itt a 60\%~körüli \acrshort{cpu}-kihasználtság is közel teljes processzorkihasználtságot jelent a virtuális gépen, ugyanis ez körülbelül 14 mag teljes kihasználtságát jelenti (mivel $ 24 * 0.6  = 14,4 $), azaz a két tétlen~\acrshort{vm} mellett feltehetően az adatbázis-indexelést végző Uyuni-t futtató virtuális gép kihasználja a rendelkezésére álló 12~magot.
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=15cm]{figures/reposync-vhost-cputemp.pdf}
+	\caption{Processzormagok átlagos hőmérséklete a rendszer terheltsége mellett.}
+	\label{fig:reposync-vhost-cputemp}
+\end{figure}
+
+\section{Frissítési értesítések}
+Teljes körű infrastruktúramenedzsment-megoldásként az Uyuni lehetőséget biztosít a kezelt gépekre telepített csomagok állapotának folyamatos követésére: minden nap, egy előre meghatározott időpontban frissíti a telepítési források adatait, és összeveti az ezekben elérhető szoftververziókat a kezelt gépekre telepítettekével. Ennek köszönhetően a tesztkörnyezet gépeihez  frissítésekről folyamatosan értesültem e-mailben, így mindig naprakész információk álltak a rendelkezésemre a frissítéseket illetően.
+
+Ezek közül kiemelt fontosságúak lehetnek a biztonsági frissítések, hiszen ezek között olyan sérülékenységek javításai is szerepelhetnek, mely kockázatot jelent a rendszer helyes működésére nézve. Ilyen értesítésből körülbelül két és fél hét alatt 9 érkezett, ezeken felül pedig nagyságrendileg 40~további, alacsonyabb prioritású frissítésről kaptam értesítést. Ezen felül az Uyuni felületére belépve az áttekintés oldalon és a rendszerek listájában is látható a kezelt rendszereink frissítéseinek állapota~(\ref{fig:uyuni-security-status}.~ábra).
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=15cm]{figures/uyuni-security-status.png}
+	\caption{A kezdőlapon tájékozódhatunk a kliensek biztonsági állapotáról.}
+	\label{fig:uyuni-security-status}
+\end{figure}
