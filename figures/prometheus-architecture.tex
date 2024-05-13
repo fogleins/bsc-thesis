@@ -1,0 +1,16 @@
+\begin{tikzpicture}[node distance=5cm]
+	% Define styles
+	\tikzstyle{rect} = [rectangle, draw, minimum width=4.2cm, minimum height=2cm, text centered, font=\fontsize{12}{12}\selectfont]
+	\tikzstyle{arrow} = [->,>=stealth]
+	
+	% Nodes
+	\node (monitored-host) [rect, rounded corners, align=center, double copy shadow, fill=white] {Monitorozott\\szolgáltatások\\(exporterek)};
+	\node (prometheus) [rect, rounded corners, below right of = monitored-host, yshift=-0.5cm] {Prometheus szerver};
+	\node (alertmanager) [rect, rounded corners, above right of = prometheus, yshift=0.5cm, align=center] {Prometheus\\Alertmanager};
+	\node (grafana) [rect, rounded corners, below of = prometheus, yshift=1cm] {Grafana};
+	
+	% Arrows
+	\draw [arrow] (prometheus) to node[midway, fill=white, inner sep=2pt, align=center] {Metrikák lekérdezése\\(HTTP-kérések)} (monitored-host);
+	\draw [arrow] (prometheus) to node[midway, fill=white, inner sep=2pt] {Riasztások} (alertmanager);
+	\draw [arrow] (grafana) to node[midway, fill=white, inner sep=2pt] {Adatok lekérdezése} (prometheus);
+\end{tikzpicture}

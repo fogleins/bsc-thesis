@@ -2,3 +2,62 @@
 % !TeX spellcheck = hu_HU
 
 \chapter{Monitoring}
+\Aref{sect:monitoring}.~alfejezetben ismertetett előnyei miatt a tesztkörnyezetben is egy monitoring rendszer kialakítása mellett döntöttem. Választásom a Prometheus monitorozó rendszerre esett, mely a Grafana vizualizációs eszközzel társítva jó betekintést enged az üzemeltetett rendszerek állapotába. A választásomat az indokolta, hogy ez a párosítás manapság nagyon elterjedt, széles körben használt és jól kibővíthető további adatok monitorozásával, továbbá számos segédanyag áll hozzá rendelkezésre mind a hivatalos oldalon, mind pedig a közösség által karbantartott ismertetők formájában.
+
+\section{Áttekintés}
+A továbbiakban tárgyaltak könnyebb megértése végett hasznos megismerni a Prometheus és a kapcsolódó komponensek működését. A Prometheus működési elve egyszerű és hatékony: a figyelt kliensekre úgynevezett \textit{exporter}eket telepítünk, melyeket a Prometheus szerver pull modellt alkalmazva adott időközönként lekérdez. Az exporterek olyan programok, melyek alkalmasak bizonyos statisztikák (pl.~erőforráskihasználtság mértéke, adatbázis-lekérdezések gyakorisága) kiolvasására, és ezeket a monitorozott rendszer egy adott portján HTTP-protokollon keresztül közzétenni. Az exporterek önmagukban nem gyűjtenek adatokat, csak adott időközönként frissítik őket, az adatgyűjtést a Prometheus szerver végzi. Figyelt végpontokból rendszerenként több is lehet, mindegyikhez külön-külön port kapcsolódik.
+
+A monitorozás szerves része a riasztások küldése, hiszen a monitoring rendszer folyamatos figyelése nélkül is jó, ha értesülünk a fennálló problémákról, hogy még időben be tudjunk avatkozni. A Prometheus az riasztások kezeléséhez az Alertmanager komponenst kínálja. Ezt részletesen konfigurálhatjuk az igényeinknek megfelelően, hogy milyen típusú problémáról, milyen platformon keresztül és kik kapjanak értesítést. Ez azért is kedvező, mert például egy éles környezet esetében egy alkalmazás összeomlásakor feltehetőleg másnak kell eljárnia, mint amikor hálózati fennakadást (pl.~\acrshort{dns}-probléma) tapasztalunk.
+
+Az összegyűjtött adatokat a Grafana segítségével tehetjük átláthatóbbá, valamint ez teszi könnyebbé a metrikák elemzését is. Adatvizualizációra specializálódott szoftver lévén a Grafana rengeteg opcióval rendelkezik az adatok megjelenítését illetően, így a \acrshort{cpu}-adatok vonalgrafikonon való megjelenítésétől kezdve a szerverünk elérhetőségét jelző igen-nem panelt is választhatunk.
+A Grafana támogatja a Prometheus saját lekérdezőnyelvével, a PromQL-lel való adatszűrést, mely lehetővé teszi a Prometheus szerverrel való egyszerű interakciót.
+\Aref{fig:prometheus-architecture}.~ábra egy általános Prometheus-alapú, Grafana adatvizualizációt használó monitoring-architektúrát mutat be.
+
+% tikz ábra beszúrása
+\vspace{0.25cm}
+\begin{figure}[ht]
+	\centering
+	\input{figures/prometheus-architecture.tex}
+	\caption{A Prometheus monitoring rendszer felépítése~\cite{PrometheusIntro}.}
+	\label{fig:prometheus-architecture}
+\end{figure}
+
+A Prometheus exporterek egy speciális formátumban teszik közzé az általuk kinyert adatokat. A legegyszerűbb esetben ezek szóközzel elválasztott kulcs-érték párok. Ilyen adatpárra mutat példát \aref{lst:prometheus-data-format}.~kódrészlet első~sora. A mérőszám elnevezése után kapcsos zárójelekbe szűrőket~(filter) helyezhetünk, ahogy az \aref{lst:prometheus-data-format}.~kódrészlet második~sorában is látható. Lekérdezés esetén az adatokat ugyanezzel a szintaktikával szűrhetjük.
+% TODO: lekérdezésre példa
+
+\begin{lstlisting}[caption=Prometheus exporterek által közzétett adatok.,label=lst:prometheus-data-format, numbers=left]
+	node_load1 0.35
+	node_hwmon_temp_celsius{chip="platform_coretemp_1",sensor="temp2"} 28
+\end{lstlisting}
+
+\section{Telepítés, konfiguráció}
+A környezet beüzemelését nagyban segítette, hogy a Prometheus monitoring rendszert az Uyuni külön Salt~Formulákon keresztül támogatja. Így lehetőség van az infrastruktúramenedzsment rendszerbe bevont klienseken manuális csomagtelepítés nélkül egy kezdetleges monitoring környezetet kialakítani. Ez a gyakorlatban azt jelentette, hogy az Uyuni a beállított Formulák alapján a kliensekre telepítette az alapvető rendszerinformációkat lekérdező \textit{Node Exportert}.
+
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=15cm]{figures/prometheus-formula.png}
+	\caption{Az Uyuni webes felületéről könnyen módosíthatjuk a Prometheus szerver alapvető beállításait.}
+	\label{fig:prometheus-formula}
+\end{figure}
+
+\subsection{Tűzfal beállítása}
+Az operációs rendszerek telepítése során a tűzfal engedélyezését választottam. Ez azt jelentette, hogy szinte minden port zárva volt a külvilág felé, így a Prometheus szerver sem tudta elérni az exporterek által szolgáltatott adatokat.
+
+Ahhoz, hogy a monitoring rendszer az elvárt módon működjön, szükséges volt a tűzfalszabályok módosítása. A telepített rendszereken a \texttt{firewalld} az alapértelmezett tűzfal, melynek a beállításait a \texttt{firewall-cmd} segédprogram segítségével tudtam módosítani~(\ref{lst:firewalld-add-port}.~kódrészlet első~sora). A kódrészlet harmadik sorában a szükséges portok kinyitását követő állapot látható az Uyunit futtató szerver esetében.
+
+\begin{lstlisting}[caption=Tűzfalszabályok módosítása.,label=lst:firewalld-add-port, numbers=left,escapechar=?]
+	?\underline{uyuni:$\sim$ \#}? firewall-cmd --permanent --add-port=9117/tcp
+	?\underline{uyuni:$\sim$ \#}? firewall-cmd --list-ports
+	5556/tcp 5557/tcp 9100/tcp 9117/tcp 9187/tcp 9800/tcp
+\end{lstlisting}
+
+% TODO: táblázat a szükséges portokról
+
+% tikz ábra beszúrása
+\begin{figure}[ht]
+	\centering
+	\input{figures/monitoring-setup.tex}
+	\caption{A monitoring rendszerbe bevont gépek a rajtuk futó exporterek által használt portokkal.}
+	\label{fig:monitoring-setup}
+\end{figure}
