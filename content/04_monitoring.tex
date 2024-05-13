@@ -10,6 +10,7 @@ A továbbiakban tárgyaltak könnyebb megértése végett hasznos megismerni a P
 A monitorozás szerves része a riasztások küldése, hiszen a monitoring rendszer folyamatos figyelése nélkül is jó, ha értesülünk a fennálló problémákról, hogy még időben be tudjunk avatkozni. A Prometheus az riasztások kezeléséhez az Alertmanager komponenst kínálja. Ezt részletesen konfigurálhatjuk az igényeinknek megfelelően, hogy milyen típusú problémáról, milyen platformon keresztül és kik kapjanak értesítést. Ez azért is kedvező, mert például egy éles környezet esetében egy alkalmazás összeomlásakor feltehetőleg másnak kell eljárnia, mint amikor hálózati fennakadást (pl.~\acrshort{dns}-probléma) tapasztalunk.
 
 Az összegyűjtött adatokat a Grafana segítségével tehetjük átláthatóbbá, valamint ez teszi könnyebbé a metrikák elemzését is. Adatvizualizációra specializálódott szoftver lévén a Grafana rengeteg opcióval rendelkezik az adatok megjelenítését illetően, így a \acrshort{cpu}-adatok vonalgrafikonon való megjelenítésétől kezdve a szerverünk elérhetőségét jelző igen-nem panelt is választhatunk.
+Grafanában a megjelenített adatokat -- melyekhez egy-egy panel tartozik -- úgynevezett \textit{dashboard}okba szervezhetjük. A dashboardok általában összetartozó adatokat tartalmaznak, azaz jó gyakorlat a hardveres erőforrások metrikáit külön dashboardba szervezni például a webszerverhez tartozó mérőszámoktól. % TODO: összesítés dashboard, amin a monitorozott hosztok adatai egy helyen láthatóak?
 A Grafana támogatja a Prometheus saját lekérdezőnyelvével, a PromQL-lel való adatszűrést, mely lehetővé teszi a Prometheus szerverrel való egyszerű interakciót.
 \Aref{fig:prometheus-architecture}.~ábra egy általános Prometheus-alapú, Grafana adatvizualizációt használó monitoring-architektúrát mutat be.
 
@@ -31,7 +32,7 @@ A Prometheus exporterek egy speciális formátumban teszik közzé az általuk k
 \end{lstlisting}
 
 \section{Telepítés, konfiguráció}
-A környezet beüzemelését nagyban segítette, hogy a Prometheus monitoring rendszert az Uyuni külön Salt~Formulákon keresztül támogatja. Így lehetőség van az infrastruktúramenedzsment rendszerbe bevont klienseken manuális csomagtelepítés nélkül egy kezdetleges monitoring környezetet kialakítani. Ez a gyakorlatban azt jelentette, hogy az Uyuni a beállított Formulák alapján a kliensekre telepítette az alapvető rendszerinformációkat lekérdező \textit{Node Exportert}.
+A környezet beüzemelését nagyban segítette, hogy a Prometheus monitoring rendszert az Uyuni külön Salt~Formulákon keresztül támogatja. Így lehetőség van az infrastruktúramenedzsment rendszerbe bevont klienseken manuális csomagtelepítés nélkül egy kezdetleges monitoring környezetet kialakítani. Ez a gyakorlatban azt jelentette, hogy az Uyuni a beállított Formulák alapján a kliensekre telepítette az alapvető rendszerinformációkat lekérdező \textit{Node exportert}, míg a monitoring szerveren egy alapbeállításokkal rendelkező Prometheus szervert és a hozzá kapcsolódó Grafana szervert telepítette.
 
 
 \begin{figure}[ht]
@@ -41,18 +42,47 @@ A környezet beüzemelését nagyban segítette, hogy a Prometheus monitoring re
 	\label{fig:prometheus-formula}
 \end{figure}
 
+\subsection{Konténerhoszt monitorozása}
+A monitoring rendszer kialakítása során nehézséget jelentett, hogy openSUSE Leap Micro-ra nem volt hivatalosan elérhető a Node exporter szoftvercsomag formájában. Emiatt eleinte a konténerhoszt monitorozására nem volt lehetőségem. A megoldást az jelentette, hogy az exportert egy konténerben telepítettem a virtuális gépre. Mivel a konténer azonban a gazdagéptől elkülönülten fut, ezért módosítani kellett a konténer futtatásához használt parancsot. A \texttt{--path.rootfs=/host} kapcsoló beállításával az exporter már a konténerből is képes volt elérni a gazdagép metrikáit, így ezt a hosztot sikerült bevonni a monitoring rendszerbe.
+
 \subsection{Tűzfal beállítása}
 Az operációs rendszerek telepítése során a tűzfal engedélyezését választottam. Ez azt jelentette, hogy szinte minden port zárva volt a külvilág felé, így a Prometheus szerver sem tudta elérni az exporterek által szolgáltatott adatokat.
 
-Ahhoz, hogy a monitoring rendszer az elvárt módon működjön, szükséges volt a tűzfalszabályok módosítása. A telepített rendszereken a \texttt{firewalld} az alapértelmezett tűzfal, melynek a beállításait a \texttt{firewall-cmd} segédprogram segítségével tudtam módosítani~(\ref{lst:firewalld-add-port}.~kódrészlet első~sora). A kódrészlet harmadik sorában a szükséges portok kinyitását követő állapot látható az Uyunit futtató szerver esetében.
+Ahhoz, hogy a monitoring rendszer az elvárt módon működjön, szükséges volt a tűzfalszabályok módosítása. A telepített rendszereken a \texttt{firewalld} az alapértelmezett tűzfal, melynek a beállításait a \texttt{firewall-cmd} segédprogram segítségével tudtam módosítani~(\ref{lst:firewalld-add-port}.~kódrészlet első~sora). A kódrészlet harmadik sorában a szükséges portok kinyitását követő állapot látható az Uyunit futtató szerver esetében, a monitoring rendszerben használt exportereket, rövid leírásukat és a kapcsolódó portszámokat \aref{tab:monitoring-exporters}.~táblázat tartalmazza.
 
+\vspace{2mm}
 \begin{lstlisting}[caption=Tűzfalszabályok módosítása.,label=lst:firewalld-add-port, numbers=left,escapechar=?]
 	?\underline{uyuni:$\sim$ \#}? firewall-cmd --permanent --add-port=9117/tcp
 	?\underline{uyuni:$\sim$ \#}? firewall-cmd --list-ports
 	5556/tcp 5557/tcp 9100/tcp 9117/tcp 9187/tcp 9800/tcp
 \end{lstlisting}
 
-% TODO: táblázat a szükséges portokról
+\begin{table}[h]
+	\setlength{\tabcolsep}{5pt}
+	\renewcommand{\arraystretch}{1.3}
+	\centering
+	\begin{tabular}{||l l m{7.6cm}||}
+		\hline
+		Portszám & Exporter & Leírás \\
+		\hline\hline
+		5556 & Tomcat JMX exporter & Az Uyuni működéséhez szükséges Tomcat alkalmazás Java-processzéről jelenít meg adatokat (pl.~szálak, memóriahasználat). \\
+		\hline
+		5557 & Taskomatic JMX exporter & Az Uyuni által használt Tascomatic alkalmazás Java-processzéről jelenít meg adatokat (pl.~szálak, memóriahasználat). \\
+		\hline
+		9090 & Prometheus exporter & A Prometheus állapotáról tesz közzé adatokat (pl.~hibás lekérések száma, lekérések mérete).  \\
+		\hline
+		9100 & Node exporter & Linux hosztokról publikál számos hardver- és kernelmetrikát (pl.~erőforráshasználat, kontextusváltások). \\
+		\hline
+		9117 & Apache exporter & Az Apache webszerverről ad meg mérőszámokat (pl.~egyes HTTP-státuszkódokhoz tartozó lekérdezések száma, \acrshort{cpu}-idő).  \\
+		\hline
+		9187 & PostgreSQL exporter & Az Uyuni által használt PostgreSQL adatbázismotorról oszt meg adatokat (pl.~zárak száma, rekordlekérdezési és frissítési ráta).  \\
+		\hline
+		9800 & Taskomatic exporter & Az Uyuni által használt Taskomatic feladatütemező metrikáit jeleníti meg (pl.~elvégzett feladatok száma, aktuális szálak száma).  \\
+		\hline
+	\end{tabular}
+	\caption{A monitoring rendszerben használt Prometheus exporterek a hozzájuk tartozó portszámokkal.}
+	\label{tab:monitoring-exporters}
+\end{table}
 
 % tikz ábra beszúrása
 \begin{figure}[ht]

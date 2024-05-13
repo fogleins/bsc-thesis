@@ -9,6 +9,6 @@
 	
 	\draw [arrow] (monitoring) to node[above left, near end, xshift=-10, yshift=-4, align=left] {9100} (kvm);
 	\draw [arrow] (monitoring) to node[near end, right] {9100} (containers);
-	\draw [arrow] (monitoring) to node[near end, right, align=left, xshift=18, yshift=-8] {80, 5556\\5557, 9100\\9117, 9187\\9800} (uyuni);
+	\draw [arrow] (monitoring) to node[near end, right, align=left, xshift=18, yshift=-8] {5556, 5557\\9100, 9117\\9187.9800} (uyuni);
 	\draw [arrow, loop, bend left] (monitoring.north east) to[out=150, in=60, looseness=8, align=left, xshift=3] node[right] {9090\\9100} (monitoring.east);
 \end{tikzpicture}
