@@ -32,6 +32,7 @@ A Prometheus exporterek egy speciális formátumban teszik közzé az általuk k
 \end{lstlisting}
 
 \section{Telepítés, konfiguráció}
+\label{sect:monitoring-installation}
 A környezet beüzemelését nagyban segítette, hogy a Prometheus monitoring rendszert az Uyuni külön Salt~Formulákon keresztül támogatja. Így lehetőség van az infrastruktúramenedzsment rendszerbe bevont klienseken manuális csomagtelepítés nélkül egy kezdetleges monitoring környezetet kialakítani. Ez a gyakorlatban azt jelentette, hogy az Uyuni a beállított Formulák alapján a kliensekre telepítette az alapvető rendszerinformációkat lekérdező \textit{Node exportert}, míg a monitoring szerveren egy alapbeállításokkal rendelkező Prometheus szervert és a hozzá kapcsolódó Grafana szervert telepítette.
 
 
@@ -120,3 +121,27 @@ A fent ismertetett konfigurációs fájlt \aref{lst:alertmanager-state}.~kódré
 A Salt-tal való konfiguráció-menedzsment a \texttt{service.running} state opcióval lehetőséget kínál a kapcsolódó service újratöltésére, amit a \texttt{watch} opció beállításával automatikusan is megtehetünk. Így tehát a kódrészlet 16.~sorában megadott fájl módosulása esetén az alertmanager-t futtató systemd service automatikusan újraindításra kerül a módosítások érvényre juttatásával, ezzel is csökkentve a manuális beavatkozás szükségességét.
 
 \lstinputlisting[caption=Az e-mail-értesítések beállítását végző konfigurációs állomány telepítéséhez használt Salt state.,label=lst:alertmanager-state, numbers=left]{listings/alertmanager-init.sls}
+
+
+\section{Adatvizualizáció}
+A gyűjtött adatok áttekintése, elemzése segítségünkre lehet további rendszerek telepítése során például szükséges erőforrások mennyiségének becsléséhez, illetve szolgáltatáskiesést követően segíthet a probléma meghatározásában.
+
+\Aref{sect:monitoring-installation}.~alfejezetben ismertetettek alapján a tesztkörnyezetben a Grafana adatvizualizációs eszközt használtam. Ez jó integrációt biztosít a Prometheushoz, könnyen lekérdezhetőek a különböző metrikák. A telepítéshez használt Salt~Formula pedig még egyszerűbbé tette a Grafana használatát: az alapértelmezett konfigurációs fájl számos előre definiált, a rendszerek állapotát jól összefoglaló dashboardot tartalmaz, így a tűzfalbeállításon és néhány panel webes felületen történő személyre szabásán túl nem volt szükséges részletesebben konfigurálni.
+
+\Aref{fig:grafana-uyuni-server}.~ábrán látható dashboard az Uyuni szerver állapotát ismerteti. Ez a dashboard is a Grafana Salt Formula része, néhány panel mértékegységének pontosításán és skálázásán kívül nem volt szükség a beállítások módosítására. Az ilyen nézetek előnye, hogy segítségükkel nagyon hamar megállapíthatjuk a rendszereink állapotát, hiszen minden lényeges mérőszámot tartalmaznak: segítségével figyelemmel követhetjük például a rendszer terheltségét, a processzor és a memória kihasználtságát, a hálózat- és háttértárhasználat rátáját, az adatbázis-műveletek állapotát és a háttértárak kihasználtságát.
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=15cm]{figures/grafana-uyuni-server.png}
+	\caption{A tesztkörnyezetben használt Grafana egyik dashboardja az Uyuni szerver fontosabb mérőszámait mutatja be.}
+	\label{fig:grafana-uyuni-server}
+\end{figure}
+
+Bár a tesztkörnyezet körülbelül két-két és fél hónapos folyamatos üzemeltetése során nem voltak jelentős kimaradások, az Uyuni kezdetleges konfigurációja során az egyik telepítőforrás tükrözése során többször is leállt az azt futtató gép, így valós helyzetben nyílt alkalmam a metrikák visszanézésére, és a hiba okának felkutatására. Az incidens során megjelenő grafikont \aref{fig:reboot-grafana}.~ábra mutatja be. A grafikon jobb oldalán látható a négy leállás, a bal szélén pedig láthatjuk, hogy néhány órával korábban hasonlóan magas terhelés mellett nem lépett fel a hiba. A grafikon $ y $ tengelyén láthatjuk, hogy az nem 100\%-ig, hanem sokkal tovább fut. Ennek oka, hogy a rendszerterhelés számítása során az egy processzormagra eső maximális terhelést tekintjük a 100\%-nak, így egy 24~\acrshort{cpu}-val rendelkező gép esetén a maximális érték 2400\% lenne. A grafikonon 1600\%~körülre esik a legnagyobb terhelés, ami összhangban van az Uyunit futtató virtuális gép által maximálisan használható 16~processzormaggal. Mint később kiderült, a hibát hardveres hiba okozta, a virtuális gép által használható processzormagok csökkentésével a probléma nem jelentkezett többé.
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=15cm]{figures/reboot-grafana.png}
+	\caption{A telepítőforrás-tükrözés során tapasztalt szolgáltatáskiesések a Grafanaban megjelenő grafikonon.}
+	\label{fig:reboot-grafana}
+\end{figure}
