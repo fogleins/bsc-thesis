@@ -1,0 +1,14 @@
+global:
+  smtp_smarthost: "localhost:25"
+  smtp_from: "alertmanager@monitoring.spot.internal"
+
+route:
+  receiver: "it-team"
+  group_by: ["alertname", "cluster"]
+
+receivers:
+  - name: "it-team"
+    email_configs:
+      - to: "root+monitoring@monitoring.spot.internal"
+        require_tls: false
+        send_resolved: true

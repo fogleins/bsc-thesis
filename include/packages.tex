@@ -11,7 +11,7 @@
   \usepackage{fontspec}
   % xelatex-nél elég a fontspec include-olása
   % lásd: https://tex.stackexchange.com/questions/462664/warnings-when-using-babel-with-lualatex
-  \def\magyarOptions{suggestions=no}  
+  \def\magyarOptions{suggestions=no}
 \else
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
@@ -37,6 +37,34 @@
 \usepackage[unicode]{hyperref} % For hyperlinks in the generated document.
 \usepackage{xcolor}
 \usepackage{listings} % For source code snippets.
+
+% https://tex.stackexchange.com/a/224743
+\lstset{
+	basicstyle=\ttfamily,
+	keepspaces=true,
+	escapeinside={(*@}{@*)}, % only required for XeLaTeX
+	columns=flexible, % only use with keepspaces=true       
+	literate=*
+	{á}{{\'a}}1
+	{é}{{\'e}}1
+	{í}{{\'i}}1
+	{ó}{{\'o}}1
+	{ö}{{\"o}}1
+	{ő}{{\H{o}}}1
+	{ú}{{\'u}}1
+	{ü}{{\"u}}1
+	{ű}{{\H{u}}}1
+	{Á}{{\'A}}1
+	{É}{{\'E}}1
+	{Í}{{\'I}}1
+	{Ó}{{\'O}}1
+	{Ö}{{\"O}}1
+	{Ő}{{\H{O}}}1
+	{Ú}{{\'U}}1
+	{Ü}{{\"U}}1
+	{Ű}{{\H{U}}}1
+}
+
 
 \usepackage[amsmath,thmmarks]{ntheorem} % Theorem-like environments.
 
