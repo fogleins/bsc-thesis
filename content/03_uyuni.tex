@@ -131,6 +131,26 @@ update_/etc/sysconfig/network/ifcfg-br0:
 			BRIDGE_STP='off'
 \end{lstlisting}
 
+\section{Szolgáltatások telepítése, kezelése}
+Az Uyuni egy fontos része a konfiguráció-menedzsment és a szoftvercsomagok telepítése, frissítése. Ezekre elsősorban Salt state-eken keresztül nyújt támogatást, a tesztkörnyezetben én is a Salt-alapú megoldást választottam a csomagok telepítésére.
+
+Csomagok és azok konfigurációjának kezeléséhez létre kell hoznunk egy konfigurációs csatornát, egy úgynevezett state channelt, mely tartalmazni fogja az elkészített state fájlt és az esetlegesen használt konfigurációs állományokat. A state fájl megírását követően a csatorna hozzárendelhető a kezelt hosztokhoz.
+
+Miután ez megtörtént, a gépekre, melyekhez hozzárendeltük az adott state-et, ki kell küldeni egy úgynevezett highstate-et. Ez egy különleges state, melyet a rendszer állít elő a feliratkozott state-ek tartalmából, a feliratkozási hierarchiát figyelembe véve. A highstate tehát minden hozzárendelt state channel adatait  tartalmazza, és a lefuttatásával jutnak érvényre a frissen felvett módosítások is. \Aref{fig:uyuni-channelsub}.~ábrán látható, hogy az Uyuni lehetőséget biztosít több kliens kiválasztására is, ezt kihasználva két hosztra egyszerre alkalmaztam a módosításokat.
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=15cm]{figures/uyuni-channelsub.png}
+	\caption{Két kiszolgáló feliratkoztatása a \textit{Network monitoring} state channelre.}
+	\label{fig:uyuni-channelsub}
+\end{figure}
+
+A fenti példában használt channel state fájlja \aref{lst:network-monitoring-state}.~kódrészleten látható. Ezzel néhány, a hálózati forgalom monitorozását lehetővé tevő csomagot telepítettem a feliratkozott gépekre, illetve elindítottam a kapcsolódó service-t és felülírtam az alapértelmezett konfigurációs állományt egy némileg különbözővel, ami alapértelmezetten más mértékegységeket használ a forgalom monitorozása során.
+
+A state konfigurálásához éltem a Salt által nyújtott sablonozási lehetőséggel, mely lehetőséget biztosít például változók létrehozására, \texttt{if-else}~ágak meghatározására, és \texttt{for}~ciklus használatára is. Bár ez elsőre némi többletmunkát jelent a state létrehozása során, egy sokkal karbantarthatóbb megoldást eredményez, hiszen elegendő például a telepítendő csomagokat egy listában felsorolni, melyet bármikor bővíthetünk, és nem kell egy-egy csomópontot lemásolni újabb hibalehetőségek esetleges bevezetésével. A sablonozás további előnye, hogy futásidőben is lekérdezhetjük például egy fájl létezését, és ez alapján folytathatjuk a state végrehajtását. Ilyen megoldást szemléltet a state forráskódjának 10.~sora, melyben az elágazás megvizsgálja, hogy éppen telepítésre kerül-e a \texttt{vnstat} csomag, vagy ha nem, akkor egy létező konfigurációs állományt szeretnénk-e frissíteni. Az elágazás eredménye függvényében frissíti a fájlt, vagy változatlanul hagyja. Egy másik hatékony megoldás az úgynevezett \textit{grain}-ek használata, melyek lehetővé teszik részletes információk lekérdezését egy Salt kliensről. Ilyet használtam a forráskód 21.~sorában, ahol az~\acrshort{os}-család függvényében más-más néven tudtam elérni a vnstat háttérfolyamatát.
+
+\lstinputlisting[caption=A Network monitoring konfigurációs csatornához tartozó Salt state.,label=lst:network-monitoring-state, numbers=left]{listings/netmonitoring-init.sls}
+
 \section{Erőforrásigény mérése}
 A fejezet elején ismertetett komoly erőforrásigény miatt kíváncsi voltam a hardver adta lehetőségek tényleges kihasználtságára. Mivel ekkor még nem állítottam be a monitoring rendszert~(ehhez előbb be kellett fejeznem az Uyuni konfigurációját), ezért egy saját Python scriptet készítettem az erőforrások állapotának figyelésére.
 
