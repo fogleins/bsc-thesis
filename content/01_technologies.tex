@@ -21,26 +21,6 @@ A virtualizációs hosztgépek jellemzője, hogy számos processzorral rendelkez
 % TODO: kép a gépről
 
 \section{Virtualizáció}
-\subsection{Áttekintés}
-A virtualizáció egy olyan technológia, amely lehetővé teszi, hogy egy fizikai számítógépen (az úgynevezett virtuális host-on) több, egymástól független operációs rendszert futtassunk. Ehhez szükség van egy \gls{hypervisor}-ra, ami az operációs rendszer legfőbb virtualizációt támogató komponense~\cite{Sles15virt}. Ez a szoftver közvetlenül a szerver hardverén fut, és biztosítja a virtuális gépek számára szükséges hardveres erőforrásokat virtualizált hardverinterfészeken keresztül. Szintén a \gls{hypervisor} felelős az erőforrások kezeléséért, tehát ennek a komponensnek kell biztosítania a virtuális gép számára beállított mennyiségű memória, processzor és háttértár rendelkezésre állását is. Ezek a beállítások a legtöbb modern \gls{hypervisor} esetében elvégezhetőek grafikus felületen is, erre ad példát \aref{fig:vboxsettings} ábra, ahol a VirtualBox virtualizációs szoftver beállításaiban egy virtuális gép alaplapi beállításait láthatjuk.
-
-Napjainkban a legelterjedtebb hypervisorok közé tartozik a VMware ESXi, a XEN és a KVM, melyek részletesebb bemutatását \aref{sect:hypervisor-comparision}.~alfejezet tartalmazza.
-
-\begin{figure}[!ht]
-	\centering
-	\includegraphics[width=120mm, keepaspectratio]{figures/virtualbox-vm-settings.png}
-	\caption{Virtuális gép beállításainak részlete a VirtualBox virtualizációs szoftverben.}
-	\label{fig:vboxsettings}
-\end{figure}
-
-
-\subsection{Paravirtualizáció és teljes virtualizáció}
-
-\subsection{Virtualizációs lehetőségek összehasonlítása} \label{sect:hypervisor-comparision}
-
-
-
-\section{Virtualizáció}
 A fent említett megnövekedett forgalom kiszolgálását hatékonyan lehet kezelni úgy, hogy olyan fizikai számítógépet helyezünk üzembe, mely  több, egymástól független operációs rendszer futtatására is alkalmas. Ilyenkor ezeket a fizikai gépen futó rendszereket virtuális gépeknek (\acrlong{vm}, \acrshort{vm}) nevezzük. Egy virtuális gép elkülönített erőforrásokat kap a fizikai géptől, hozzáférhet például bizonyos mennyiségű processzormaghoz, memóriához, illetve külön háttértár-partíciói is lehetnek. A virtualizált hardverek és operációs rendszerek a legtöbb esetben a külvilág felé nem különböztethetőek meg a fizikai számítógépektől, és ezzel a megoldással jelentősen csökkenthető a rendszerek és a hozzájuk szükséges informatikai infrastruktúra üzemeltetésének költsége.
 
 A virtualizáció nagy ereje abban rejlik, hogy bizonyos hardverek virtualizációjával egységnyi teljesítményt olcsóbban kaphatunk meg, mintha külön fizikai gépeket helyeznénk üzembe, illetve nagyobb rugalmasságot kapunk a kezelésükben, üzemeltetésükben. Képzeljük el, hogy megveszünk egy számítógépet, amin szeretnénk futtatni egy számunkra fontos alkalmazást, mondjuk a honlapunkat. Ilyenkor az ezen a gépen futó operációs rendszer teljes mértékben megszabhatja, hogy milyen erőforrásokból mennyit használ. Ha egy másik szolgáltatást -- például levelezőszervert -- szeretnénk emellett futtatni, akkor limitáltabbak a lehetőségeink, hiszen a korábban telepített webszerver már foglal bizonyos erőforrásokat, illetve a program függőségeit és konfigurációs fájljait is telepítettük már, ami esetleg negatívan hat a levelezőszerverünk működésére. Ha mindezt virtualizált környezetben tesszük meg, akkor a topológia megváltozik: a két alkalmazás teljesen elkülönítetten, egymás zavarása nélkül, különböző virtuális gépekben futhatnak, ezeket a gépeket pedig a fizikai gépen futó egyik szoftverkomponens, az úgynevezett \gls{hypervisor} kezeli, mely a gazdagépen futó rendszer legfőbb virtualizációt támogató komponense~\cite{Sles15virt}. A \gls{hypervisor} látja el az erőforrások ütemezésének és kiosztásának (pl.~processzoridő, memória) feladatát, gondoskodik a virtuális gépek számára szükséges hardveres erőforrások virtualizált hardverinterfészeken keresztüli elérhetőségéről.
