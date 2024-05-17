@@ -8,7 +8,7 @@
 \section{Áttekintés}
 A továbbiakban tárgyaltak könnyebb megértése végett hasznos megismerni a Prometheus és a kapcsolódó komponensek működését. A Prometheus működési elve egyszerű és hatékony: a figyelt kliensekre úgynevezett \textit{exporter}eket telepítünk, melyeket a Prometheus szerver pull modellt alkalmazva adott időközönként lekérdez. Az exporterek olyan programok, melyek alkalmasak bizonyos statisztikák (pl.~erőforráskihasználtság mértéke, adatbázis-lekérdezések gyakorisága) kiolvasására, és ezeket a monitorozott rendszer egy adott portján HTTP-protokollon keresztül közzétenni. Az exporterek önmagukban nem gyűjtenek adatokat, csak adott időközönként frissítik őket, az adatgyűjtést a Prometheus szerver végzi. Figyelt végpontokból rendszerenként több is lehet, mindegyikhez külön-külön port kapcsolódik.
 
-A monitorozás szerves része a riasztások küldése, hiszen a monitoring rendszer folyamatos figyelése nélkül is jó, ha értesülünk a fennálló problémákról, hogy még időben be tudjunk avatkozni. A Prometheus az riasztások kezeléséhez az Alertmanager komponenst kínálja. Ezt részletesen konfigurálhatjuk az igényeinknek megfelelően, hogy milyen típusú problémáról, milyen platformon keresztül és kik kapjanak értesítést. Ez azért is kedvező, mert például egy éles környezet esetében egy alkalmazás összeomlásakor feltehetőleg másnak kell eljárnia, mint amikor hálózati fennakadást (pl.~\acrshort{dns}-probléma) tapasztalunk.
+A monitorozás szerves része a riasztások küldése, hiszen a monitoring rendszer folyamatos figyelése nélkül is jó, ha értesülünk a fennálló problémákról, hogy még időben be tudjunk avatkozni. A Prometheus a riasztások kezeléséhez az Alertmanager komponenst kínálja. Ezt részletesen konfigurálhatjuk az igényeinknek megfelelően, hogy milyen típusú problémáról, milyen platformon keresztül és kik kapjanak értesítést. Ez azért is kedvező, mert például egy éles környezet esetében egy alkalmazás összeomlásakor feltehetőleg másnak kell eljárnia, mint amikor hálózati fennakadást (pl.~\acrshort{dns}-probléma) tapasztalunk.
 
 Az összegyűjtött adatokat a Grafana segítségével tehetjük átláthatóbbá, valamint ez teszi könnyebbé a metrikák elemzését is. Adatvizualizációra specializálódott szoftver lévén a Grafana rengeteg opcióval rendelkezik az adatok megjelenítését illetően, így a \acrshort{cpu}-adatok vonalgrafikonon való megjelenítésétől kezdve a szerverünk elérhetőségét jelző igen-nem panelt is választhatunk.
 Grafanában a megjelenített adatokat -- melyekhez egy-egy panel tartozik -- úgynevezett \textit{dashboard}okba szervezhetjük. A dashboardok általában összetartozó adatokat tartalmaznak, azaz jó gyakorlat a hardveres erőforrások metrikáit külön dashboardba szervezni például a webszerverhez tartozó mérőszámoktól. % TODO: összesítés dashboard, amin a monitorozott hosztok adatai egy helyen láthatóak?
@@ -36,7 +36,7 @@ A Prometheus exporterek egy speciális formátumban teszik közzé az általuk k
 \label{sect:monitoring-installation}
 A környezet beüzemelését nagyban segítette, hogy a Prometheus monitoring rendszert az Uyuni külön Salt~Formulákon keresztül támogatja. Így lehetőség van az infrastruktúramenedzsment rendszerbe bevont klienseken manuális csomagtelepítés nélkül egy kezdetleges monitoring környezetet kialakítani. Ez a gyakorlatban azt jelentette, hogy az Uyuni a beállított Formulák alapján a kliensekre telepítette az alapvető rendszerinformációkat lekérdező \textit{Node exportert}, míg a monitoring szerveren egy alapbeállításokkal rendelkező Prometheus szervert és a hozzá kapcsolódó Grafana szervert telepítette.
 
-
+% TODO: nagyobb betűméret a képen
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=15cm]{figures/prometheus-formula.png}
@@ -106,7 +106,7 @@ A 14.~sorban látható \texttt{send\_resolved} opciót igazra állítva a szolg�
 
 A teljes, kommentekkel ellátott konfigurációs fájl elérhető a \textbf{Függelék}ben. % TODO: függelékbe
 
-
+% TODO: kép nagyítása
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=15cm]{figures/alertmanager-state.png}
@@ -114,6 +114,7 @@ A teljes, kommentekkel ellátott konfigurációs fájl elérhető a \textbf{Füg
 	\label{fig:alertmanager-state}
 \end{figure}
 
+% TODO: oldaltörés javítása?
 % TODO: a teljes kódrészlet legyen a függelékben
 % https://tex.stackexchange.com/a/224743
 \lstinputlisting[caption=Az e-mail-értesítések küldéséhez használt konfigurációs fájl részlete.,label=lst:alertmanager-yml-short, numbers=left]{listings/alertmanager.yml.short}
@@ -138,6 +139,7 @@ A gyűjtött adatok áttekintése, elemzése segítségünkre lehet további ren
 	\label{fig:grafana-uyuni-server}
 \end{figure}
 
+% TODO: két-két és fél számmal?
 Bár a tesztkörnyezet körülbelül két-két és fél hónapos folyamatos üzemeltetése során nem voltak jelentős kimaradások, az Uyuni kezdetleges konfigurációja során az egyik telepítőforrás tükrözése során többször is leállt az azt futtató gép, így valós helyzetben nyílt alkalmam a metrikák visszanézésére, és a hiba okának felkutatására. Az incidens során megjelenő grafikont \aref{fig:reboot-grafana}.~ábra mutatja be. A grafikon jobb oldalán látható a négy leállás, a bal szélén pedig láthatjuk, hogy néhány órával korábban hasonlóan magas terhelés mellett nem lépett fel a hiba. A grafikon $ y $ tengelyén láthatjuk, hogy az nem 100\%-ig, hanem sokkal tovább fut. Ennek oka, hogy a rendszerterhelés számítása során az egy processzormagra eső maximális terhelést tekintjük a 100\%-nak, így egy 24~\acrshort{cpu}-val rendelkező gép esetén a maximális érték 2400\% lenne. A grafikonon 1600\%~körülre esik a legnagyobb terhelés, ami összhangban van az Uyunit futtató virtuális gép által maximálisan használható 16~processzormaggal. Mint később kiderült, a hibát hardveres hiba okozta, a virtuális gép által használható processzormagok csökkentésével a probléma nem jelentkezett többé.
 
 \begin{figure}[ht]

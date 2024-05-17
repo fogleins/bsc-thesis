@@ -1,7 +1,7 @@
 % !TeX spellcheck = hu_HU
 % !TeX encoding = UTF-8
 
-\chapter{Infrastruktúramenedzsment: Uyuni}
+\chapter{Infrastruktúra-menedzsment: Uyuni}
 \label{chap:uyuni}
 Nagyméretű informatikai infrastruktúra kezelése esetén elengedhetetlen valamiféle infrastruktúramenedzsment-eszköz használata. Ez nem csak könnyebbé teszi az üzemeltetést, de számos kiegészítő funkcióval is rendelkezik, lényegében egy helyen láthatunk minden releváns adatot, és egyazon felületről van lehetőségünk frissítések telepítésére és biztonsági sérülékenységek leírásainak böngészésre, mint ahol azt is tároljuk, hogy egy adott virtuális gép melyik gazdagépen fut, és az hol található.
 
@@ -48,9 +48,9 @@ A particionálás kérdése azért is kiemelt fontosságú az Uyuni telepítése
 Ahogy az előző alfejezetben már említettem, az Uyuni egyik központi feladata a telepítőforrások és szoftvercsomagok kezelése a bevont rendszereken. Ehhez a használni kívánt telepítőforrásokat le kell tükröznünk az Uyunit futtató szerverre. Ez a megoldás elsőre túlzásnak tűnhet, hiszen egy-egy ilyen forrás több tíz, egyes esetekben több száz gigabyte lehet, azonban egy nagyméretű infrastruktúránál megvannak az előnyei. Gondoljunk csak bele, hogy mekkora hálózati forgalmat takaríthatunk meg azzal, hogy a telepítendő szoftverek és operációsrendszer-frissítések letöltésekor nem kell minden esetben az internetről letölteni a szükséges csomagokat, hanem ezt elegendő mindössze egyszer, az Uyuni szerveren megtenni, és onnantól kezdve az összes kliens már a belső hálózatról érheti el a szükséges programokat.
 Emellett hasznos lehet egy offline példány megtartása is a telepített csomagokból, hiszen előfordulhat, hogy egy harmadik fél által üzemeltetett telepítési forrás elérhetetlenné válik, és így nem férünk hozzá a kívánt csomagokhoz.
 
-Ahhoz, hogy egy-egy ilyen csomagtárhelyet letükrözhessünk, létre kell hozni úgynevezett \textit{Software Channel}-eket, melyek lényegében a repository-t csomagolják be egy magasabb szintű egységbe. Ez tárolja, hogy milyen csomagok érhetőek el, ezek milyen architektúrán használhatóak, lehetővé teszik a csomagforrások kezelését, és hozzárendelhetjük őket a kliensekhez. A csatornák által tartalmazott repository-k tárolják, hogy milyen címen érhető el a tükrözendő telepítőforrás, és hogy az adott repository melyik csatornához van hozzárendelve.
+Ahhoz, hogy egy-egy ilyen csomagtárhelyet letükrözhessünk, létre kell hozni úgynevezett \textit{Software Channel}-eket, melyek lényegében a tárolót~(repository) csomagolják be egy magasabb szintű egységbe. Ez tárolja, hogy milyen csomagok érhetőek el, ezek milyen architektúrán használhatóak, lehetővé teszik a csomagforrások kezelését, és hozzárendelhetjük őket a kliensekhez. A csatornák által tartalmazott repository-k tárolják, hogy milyen címen érhető el a tükrözendő telepítőforrás, és hogy az adott repository melyik csatornához van hozzárendelve.
 
-A tesztkörnyezethez is tükröztem telepítési forrásokat. Mivel a gépek többsége openSUSE Leap~15.5-ös verziót használt, ezért az ehhez tartozó csomagok szinkronizálásával kezdtem. Minden alapértelmezett forrást letükröztem, illetve az Uyuni általi menedzselés céljából az Uyuni-csomagokat tartalmazó repository-t is felvettem a szinkronizálandók közé. Az egyszerűbb kezelés miatt a csatornák hierarchiába szervezhetőek, így csak a kiválasztott szülőcsatornával (base channel) kompatibilis gyermekcsatornákat vehetünk fel egy adott klienshez. A tesztkörnyezetben létrehozott telepítőforrás-hierarchiát \aref{fig:software-channels}.~ábra szemlélteti.
+A tesztkörnyezethez is tükröztem telepítési forrásokat. Mivel a gépek többsége openSUSE Leap~15.5-ös verziót használt, ezért az ehhez tartozó csomagok szinkronizálásával kezdtem. Minden alapértelmezett forrást letükröztem, illetve az Uyuni általi menedzselés céljából az Uyuni-csomagokat tartalmazó tárolót is felvettem a szinkronizálandók közé. Az egyszerűbb kezelés miatt a csatornák hierarchiába szervezhetőek, így csak a kiválasztott szülőcsatornával (base channel) kompatibilis gyermekcsatornákat vehetünk fel egy adott klienshez. A tesztkörnyezetben létrehozott telepítőforrás-hierarchiát \aref{fig:software-channels}.~ábra szemlélteti.
 
 \begin{figure}[ht]
 	\centering
@@ -95,7 +95,7 @@ Ezt követően a kapcsolódó Salt service újraindításával a kliens kapcsola
 	\label{fig:uyuni-bootstrap-error}
 \end{figure}
 
-
+% TODO: kép nagyítása
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=15cm]{figures/uyuni-system-details.png}
@@ -103,7 +103,7 @@ Ezt követően a kapcsolódó Salt service újraindításával a kliens kapcsola
 	\label{fig:uyuni-system-details}
 \end{figure}
 
-\begin{lstlisting}[caption=A manuális konfiguráció során létrehozott állományok.,label=lst:salt-client-config,escapechar=?]
+\begin{lstlisting}[caption=A manuális konfiguráció során létrehozott állományok tartalma.,label=lst:salt-client-config,escapechar=?]
 	?\underline{10-151-7-5:/etc/venv-salt-minion/minion.d \#}? cat id.conf
 	id: kvm.spot.internal
 	?\underline{10-151-7-5:/etc/venv-salt-minion/minion.d \#}? cat master.conf
@@ -139,6 +139,7 @@ Csomagok és azok konfigurációjának kezeléséhez létre kell hoznunk egy kon
 
 Miután ez megtörtént, a gépekre, melyekhez hozzárendeltük az adott state-et, ki kell küldeni egy úgynevezett highstate-et. Ez egy különleges state, melyet a rendszer állít elő a feliratkozott state-ek tartalmából, a feliratkozási hierarchiát figyelembe véve. A highstate tehát minden hozzárendelt state channel adatait  tartalmazza, és a lefuttatásával jutnak érvényre a frissen felvett módosítások is. \Aref{fig:uyuni-channelsub}.~ábrán látható, hogy az Uyuni lehetőséget biztosít több kliens kiválasztására is, ezt kihasználva két hosztra egyszerre alkalmaztam a módosításokat.
 
+% TODO: kép nagyítása
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=15cm]{figures/uyuni-channelsub.png}
@@ -150,6 +151,7 @@ A fenti példában használt channel state fájlja \aref{lst:network-monitoring-
 
 A state konfigurálásához éltem a Salt által nyújtott sablonozási lehetőséggel, mely lehetőséget biztosít például változók létrehozására, \texttt{if-else}~ágak meghatározására, és \texttt{for}~ciklus használatára is. Bár ez elsőre némi többletmunkát jelent a state létrehozása során, egy sokkal karbantarthatóbb megoldást eredményez, hiszen elegendő például a telepítendő csomagokat egy listában felsorolni, melyet bármikor bővíthetünk, és nem kell egy-egy csomópontot lemásolni újabb hibalehetőségek esetleges bevezetésével. A sablonozás további előnye, hogy futásidőben is lekérdezhetjük például egy fájl létezését, és ez alapján folytathatjuk a state végrehajtását. Ilyen megoldást szemléltet a state forráskódjának 10.~sora, melyben az elágazás megvizsgálja, hogy éppen telepítésre kerül-e a \texttt{vnstat} csomag, vagy ha nem, akkor egy létező konfigurációs állományt szeretnénk-e frissíteni. Az elágazás eredménye függvényében frissíti a fájlt, vagy változatlanul hagyja. Egy másik hatékony megoldás az úgynevezett \textit{grain}-ek használata, melyek lehetővé teszik részletes információk lekérdezését egy Salt kliensről. Ilyet használtam a forráskód 21.~sorában, ahol az~\acrshort{os}-család függvényében más-más néven tudtam elérni a vnstat háttérfolyamatát.
 
+% TODO: oldaltörés
 \lstinputlisting[caption=A Network monitoring konfigurációs csatornához tartozó Salt state.,label=lst:network-monitoring-state, numbers=left]{listings/netmonitoring-init.sls}
 
 \section{Erőforrásigény mérése}
@@ -165,7 +167,7 @@ A mérést egy telepítőforrás-tükrözés során végeztem, hiszen ekkor volt
 	\label{fig:reposync-chart}
 \end{figure}
 
-Egy másik, rövidebb szinkronizálás során a virtuális gépeket futtató gazdagépen figyeltem meg a mérőszámok változását. Ennek érdekessége, hogy így lehetőségem nyílt a processzormagok hőmérsékletének nyomon követésére is. Ezáltal megfigyelhetjük a szervergép hűtésének hatékonyságát: míg a~\acrshort{cpu} kihasználtsága körülbelül 50\%-kal~nőtt, a processzor hőmérséklete csupán 8°C-kal változott, ami körülbelül 20\%-os~növekedést jelent. \Aref{fig:reposync-vhost-cputemp}.~ábráról leolvasható, hogy a processzor-hőmérséklet a~\acrshort{cpu} kihasználtságával összhangban változik, azonban érdemes megjegyezni, hogy a hőmérsékletet megjelenítéséhez egy másik skálát alkalmaztam, így a hőmérséklet-növekedés mértéke arányaiban valóban elmarad a processzorkihasználtság változásától. Az ábrán látható 60\%~körüli \acrshort{cpu}-kihasználtság egyébként közel teljes processzorkihasználtságot jelent a virtuális gépen, ugyanis ez körülbelül 14 mag teljes kihasználtságát jelenti (mivel $ 24 * 0.6  = 14,4 $), azaz a két tétlen~\acrshort{vm} mellett feltehetően az adatbázis-indexelést végző Uyunit futtató virtuális gép kihasználja a rendelkezésére álló 12~magot.
+Egy másik, rövidebb szinkronizálás során a virtuális gépeket futtató gazdagépen figyeltem meg a mérőszámok változását. Ennek érdekessége, hogy így lehetőségem nyílt a processzormagok hőmérsékletének nyomon követésére is. Ezáltal megfigyelhetjük a szervergép hűtésének hatékonyságát: míg a~\acrshort{cpu} kihasználtsága körülbelül 50\%-kal~nőtt, a processzor hőmérséklete csupán 8°C-kal változott, ami körülbelül 20\%-os~növekedést jelent. \Aref{fig:reposync-vhost-cputemp}.~ábráról leolvasható, hogy a processzor-hőmérséklet a~\acrshort{cpu} kihasználtságával összhangban változik, azonban érdemes megjegyezni, hogy a hőmérsékletet megjelenítéséhez egy másik skálát alkalmaztam, így a hőmérséklet-növekedés mértéke arányaiban valóban elmarad a processzorkihasználtság változásától. Az ábrán látható 60\%~körüli \acrshort{cpu}-kihasználtság egyébként közel teljes processzorkihasználtságot jelent a virtuális gépen, ugyanis ez körülbelül 14 mag teljes kihasználtságát jelenti (mivel $ 24 \cdot 0.6  = 14,4 $), azaz a két tétlen~\acrshort{vm} mellett feltehetően az adatbázis-indexelést végző Uyunit futtató virtuális gép kihasználja a rendelkezésére álló 12~magot.
 
 \begin{figure}[ht]
 	\centering
@@ -179,6 +181,7 @@ Teljes körű infrastruktúramenedzsment-megoldásként az Uyuni lehetőséget b
 
 Ezek közül kiemelt fontosságúak lehetnek a biztonsági frissítések, hiszen ezek között olyan sérülékenységek javításai is szerepelhetnek, mely kockázatot jelent a rendszer helyes működésére nézve. Ilyen értesítésből körülbelül két és fél hét alatt 9 érkezett, ezeken felül pedig nagyságrendileg 40~további, alacsonyabb prioritású frissítésről kaptam értesítést. Ezen felül az Uyuni felületére belépve az áttekintés oldalon és a rendszerek listájában is látható a kezelt rendszereink frissítéseinek állapota~(\ref{fig:uyuni-security-status}.~ábra).
 
+% TODO: kép nagyítása
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=15cm]{figures/uyuni-security-status.png}
