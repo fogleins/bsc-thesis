@@ -20,7 +20,7 @@ Ezen technológiák lehetőségeit figyelembe véve a tesztkörnyezettel szemben
 	\item a rendszer működése, teljesítménye legyen jól nyomon követhető monitoring rendszeren keresztül.
 \end{itemize}
 
-Az így meghatározott tesztkörnyezet felépítését \aref{fig:test-env-arch} ábra mutatja be. Az ábrán jól elkülöníthetően jelennek meg az architektúra egyes rétegei: a legalsó szinten helyezkedik el a \gls{hypervisor}, melyre a kékkel jelölt virtuális gépek épülnek, továbbá narancssárgával láthatóak az alkalmazásréteg elemei, melyek az alattuk elhelyezkedő virtuális gépeken futnak.
+Az így meghatározott tesztkörnyezet felépítését \aref{fig:test-env-arch}.~ábra mutatja be. Az ábrán jól elkülöníthetően jelennek meg az architektúra egyes rétegei: a legalsó szinten helyezkedik el a \gls{hypervisor}, melyre a kékkel jelölt virtuális gépek épülnek, továbbá narancssárgával láthatóak az alkalmazásréteg elemei, melyek az alattuk elhelyezkedő virtuális gépeken futnak.
 
 \begin{figure}[!ht]
 	\centering
@@ -79,7 +79,7 @@ A probléma okának felderítését segíti a snapshotok felcsatolásának lehet
 
 A MicroOS különlegességei közé tartozik még, hogy a szerver operációs rendszereknél megszokott konzolos és távoli asztalos elérés mellett egy webes felületet is biztosít a rendszer kezelésére. Ehhez a Cockpit adminisztrációs rendszert használja, mely az utóbbi években egyre nagyobb népszerűségnek örvendő megoldás. A Red Hat disztribúciói például már ezt a rendszert ajánlják a virtualizáció kezelésére a korábban megszokott virt-manager helyett~\cite{RHELDeprecated}.
 
-A Cockpit felülete gyors áttekintést nyújt a rendszer állapotáról, továbbá könnyíti a konténerek létrehozását (\ref{fig:cockpit-container} ábra) és kezelését. A fontosabb metrikák (processzor-, memória-, háttértár és hálózathasználat) megtekintése mellett szükség esetén közvetlenül is be tudunk avatkozni a rendszer működésébe, ugyanis a felület egy terminállal is rendelkezik. Továbbá a futó szolgáltatások állapotát is figyelemmel kísérhetjük, valamint a felhasználói fiókokat is kezelhetjük a Cockpit segítségével.
+A Cockpit felülete gyors áttekintést nyújt a rendszer állapotáról, továbbá könnyíti a konténerek létrehozását (\ref{fig:cockpit-container}.~ábra) és kezelését. A fontosabb metrikák (processzor-, memória-, háttértár és hálózathasználat) megtekintése mellett szükség esetén közvetlenül is be tudunk avatkozni a rendszer működésébe, ugyanis a felület egy terminállal is rendelkezik. Továbbá a futó szolgáltatások állapotát is figyelemmel kísérhetjük, valamint a felhasználói fiókokat is kezelhetjük a Cockpit segítségével.
 
 \begin{figure}[ht]
 	\centering
@@ -91,7 +91,7 @@ A Cockpit felülete gyors áttekintést nyújt a rendszer állapotáról, továb
 Az openSUSE-projekt kétféle MicroOS-verziót tart karban: a MicroOS-t, mely egy rolling release modellt követ, azaz a rendszer folyamatosan (akár napi szinten) kapja meg a frissítéseket, így több, kisebb verzióugrással tartható karban, míg az openSUSE Leap Micro a \acrlong{sle} Micro kiadási modelljét követi, és a Leap-hez hasonlóan bináris kompatibilitást garantál a két verzió között. A tesztkörnyezethez a stabilitás és kompatibilitás miatt a Leap Micro változatot választottam.
 
 \section{Hálózati topológia}
-Az infrastruktúra működésében fontos szerepe van a hálózatnak: a távoli elérésen túl biztosítani kell a szoftvercsomagok elérhetőségét is, valamint a későbbiekben látni fogjuk, hogy a monitoring rendszer is hálózaton keresztül gyűjti az adatokat. Ezek miatt lényeges volt, hogy a gépek tudjanak kommunikálni egymással és a külvilággal. A tesztkörnyezet hálózati felépítését \aref{fig:test-env-network} ábra szemlélteti.
+Az infrastruktúra működésében fontos szerepe van a hálózatnak: a távoli elérésen túl biztosítani kell a szoftvercsomagok elérhetőségét is, valamint a későbbiekben látni fogjuk, hogy a monitoring rendszer is hálózaton keresztül gyűjti az adatokat. Ezek miatt lényeges volt, hogy a gépek tudjanak kommunikálni egymással és a külvilággal. A tesztkörnyezet hálózati felépítését \aref{fig:test-env-network}.~ábra szemlélteti.
 
 \begin{figure}[ht]
 	\centering
@@ -105,7 +105,7 @@ Az infrastruktúra működésében fontos szerepe van a hálózatnak: a távoli 
 A virtualizált környezetek sajátossága, hogy a virtuális gépek alapesetben egy -- a virtualizációt biztosító szoftver által kezelt -- hálózatra tudnak csatlakozni, a fizikai gép hálózatán nincs lehetőségük kommunikálni. Ez a megoldás általában külön konfiguráció nélkül elérhető, viszont hátránya, hogy a külvilág felé gyakorlatilag láthatatlanná válik a virtuális gép. Bár ez porttovábbítással és a tűzfalbeállítások, valamint az érintett szolgáltatások módosításával orvosolható, a hálózati interfészek bridge-dzselése egy szélesebb körben használható megoldást nyújt.
 
 Egy bridge-dzselt interfész lehetővé teszi a virtuális gépek számára, hogy a gazdagéppel azonos hálózaton kommunikáljanak, azaz ugyanúgy működjenek, mintha minden virtuális gép virtualizált hálózati interfészéhez tartozna egy dedikált hálózati csatlakozó a fizikai gépen, mely egyazon hálózathoz csatlakozik. Ehhez a gazdagép hálózati beállításaiban létre kell hozni egy hálózati híd eszközt, és a használni kívánt interfészt be kell állítani bridge masterként.
-Ezeket a beállításokat egyszerűen elvégezhetjük parancssori felületen, illetve a YaST segítségével is (\ref{fig:yast-net-bridge} ábra). Az így létrejött virtuális eszköz az OSI-modell szerinti második szinten, az adatkapcsolati rétegben működik a hardveres switch-ekhez hasonlóan~\cite{SUSENetBridge}.
+Ezeket a beállításokat egyszerűen elvégezhetjük parancssori felületen, illetve a YaST segítségével is (\ref{fig:yast-net-bridge}.~ábra). Az így létrejött virtuális eszköz az OSI-modell szerinti második szinten, az adatkapcsolati rétegben működik a hardveres switch-ekhez hasonlóan~\cite{SUSENetBridge}.
 
 \begin{figure}[ht]
 	\centering
@@ -138,7 +138,7 @@ Emellett telepítési forrást is meg kellett adni, melyhez én telepítő lemez
 \end{lstlisting}
 
 Ezen túl meg kell adni a gép fontosabb paramétereit is (pl. processzorok száma, memória mennyisége), hogy milyen erőforrásokkal szeretnénk telepíteni azt. A tesztkörnyezetben használt gépek telepítése során elsősorban a dokumentációban ismertetett rendszerkövetelményeket vettem figyelembe az erőforrások meghatározásánál, de mivel aránylag sok erőforrás állt rendelkezésemre, így előfordult, hogy a számítási műveletek gyorsítása érdekében a szükségesnél több magot adtam a virtuális gépeknek. Mivel a~\acrshort{vm}-ek konfigurációja szabadon változtatható a későbbiekben is (esetleg a gép újraindítása szükséges az érvényre jutásukhoz), ezért ez nem jelentett problémát a későbbiekben sem. Emellett a~\acrshort{kvm} támogatja a memória és processzor erőforrások \gls{overcommit}-olását is, azaz nem jelent problémát, ha esetleg a fizikai gépen elérhetőnél több \acrshort{cpu}-erőforrást osztottunk ki a virtuális gépek számára, bár ennek használatára a dolgozathoz készített tesztkörnyezetben nem volt szükség~\cite{RedHatKvmOvercommit}.
-A tesztkörnyezet egyik virtuális gépének telepítéséhez használt parancsot \aref{lst:virtinstall} kódrészlet mutatja be.
+A tesztkörnyezet egyik virtuális gépének telepítéséhez használt parancsot \aref{lst:virtinstall}.~kódrészlet mutatja be.
 
 \begin{lstlisting}[caption=Virtuális gép telepítése a virt-install segédprogrammal.,label=lst:virtinstall]
 	virt-install --name uyuni --memory 32768 --vcpus 12 --cdrom /mnt/openSUSE-Leap-15.5-NET-x86_64-Media.iso --os-variant opensuse15.5 --disk /dev/vg1/kvm-uyuni
