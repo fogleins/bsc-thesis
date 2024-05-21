@@ -30,7 +30,8 @@ route:
         severity: critical
       receiver: it-team-critical
 
-# Ha egy szolgáltatás már 'critical' állapotban van, akkor a 'warning' állapotra ne küldjön riasztásokat
+# Ha egy szolgáltatás már 'critical' állapotban van, akkor a 'warning' állapotra
+#   ne küldjön riasztásokat
 inhibit_rules:
   - source_match:
       severity: "critical"

@@ -116,21 +116,22 @@ A kezdeti információgyűjtés során az infrastruktúramenedzsment-rendszer me
 Munkám során én két rendszertípust használtam: a virtualizációs hoszthoz és a monitorozott rendszerhez kapcsolódót. A \textit{Virtualization Host} Formula néhány alapvető beállítást (pl. hálózati konfiguráció) ad meg a rendszeren, azonban ez a felhasználási céljaimnak nem felelt meg teljes mértékben, így a beállításokat egy saját Salt state-tel módosítottam, mely \aref{lst:vhost-salt-formula-mod}.~kódrészleten látható. A példában a könnyebb átláthatóság érdekében a módosítandó fájl tartalmát a state fájlban definiáltam, de lehetőség van ennek egy központilag, az Uyunin keresztül kezelt konfigurációs fájl hivatkozásával való megadására is.
 A \textit{Monitored Host} beállításait a következő fejezetben tárgyalom részletesen.
 
-\begin{lstlisting}[caption=A hálózati konfiguráció frissítését végző Salt state.,label=lst:vhost-salt-formula-mod]
-update_/etc/sysconfig/network/ifcfg-br0:
-	file.managed:
-		- name: /etc/sysconfig/network/ifcfg-br0
-		- user: root
-		- group: root
-		- mode: 644
-		- content: |
-			BOOTPROTO='dhcp'
-			STARTMODE='onboot'
-			ZONE='public'
-			BRIDGE='yes'
-			BRIDGE_PORTS='eth1'
-			BRIDGE_STP='off'
-\end{lstlisting}
+\begin{figure}[htb]
+	\begin{lstlisting}[caption=A hálózati konfiguráció frissítését végző Salt state.,label=lst:vhost-salt-formula-mod]
+	update_/etc/sysconfig/network/ifcfg-br0:
+		file.managed:
+			- name: /etc/sysconfig/network/ifcfg-br0
+			- user: root
+			- group: root
+			- mode: 644
+			- content: |
+				BOOTPROTO='dhcp'
+				STARTMODE='onboot'
+				ZONE='public'
+				BRIDGE='yes'
+				BRIDGE_PORTS='eth1'
+				BRIDGE_STP='off'\end{lstlisting}
+\end{figure}
 
 \section{Szolgáltatások telepítése, kezelése}
 Az Uyuni egy fontos része a konfiguráció-menedzsment és a szoftvercsomagok telepítése, frissítése. Ezekre elsősorban Salt state-eken keresztül nyújt támogatást, a tesztkörnyezetben én is a Salt-alapú megoldást választottam a csomagok telepítésére.
@@ -152,10 +153,12 @@ A fenti példában használt channel state fájlja \aref{lst:network-monitoring-
 A state konfigurálásához éltem a Salt által nyújtott sablonozási lehetőséggel, mely lehetőséget biztosít például változók létrehozására, \texttt{if-else}~ágak meghatározására, és \texttt{for}~ciklus használatára is. Bár ez elsőre némi többletmunkát jelent a state létrehozása során, egy sokkal karbantarthatóbb megoldást eredményez, hiszen elegendő például a telepítendő csomagokat egy listában felsorolni, melyet bármikor bővíthetünk, és nem kell egy-egy csomópontot lemásolni újabb hibalehetőségek esetleges bevezetésével. A sablonozás további előnye, hogy futásidőben is lekérdezhetjük például egy fájl létezését, és ez alapján folytathatjuk a state végrehajtását. Ilyen megoldást szemléltet a state forráskódjának 10.~sora, melyben az elágazás megvizsgálja, hogy éppen telepítésre kerül-e a \texttt{vnstat} csomag, vagy ha nem, akkor egy létező konfigurációs állományt szeretnénk-e frissíteni. Az elágazás eredménye függvényében frissíti a fájlt, vagy változatlanul hagyja. Egy másik hatékony megoldás az úgynevezett \textit{grain}-ek használata, melyek lehetővé teszik részletes információk lekérdezését egy Salt kliensről. Ilyet használtam a forráskód 21.~sorában, ahol az~\acrshort{os}-család függvényében más-más néven tudtam elérni a vnstat háttérfolyamatát.
 
 % TODO: oldaltörés
-\lstinputlisting[caption=A Network monitoring konfigurációs csatornához tartozó Salt state.,label=lst:network-monitoring-state, numbers=left]{listings/netmonitoring-init.sls}
+\begin{figure}[htb]
+	\lstinputlisting[caption=A Network monitoring konfigurációs csatornához tartozó Salt state.,label=lst:network-monitoring-state, numbers=left]{listings/netmonitoring-init.sls}
+\end{figure}
 
 \section{Erőforrásigény mérése}
-A fejezet elején ismertetett komoly erőforrásigény miatt kíváncsi voltam a hardver adta lehetőségek tényleges kihasználtságára. Mivel ekkor még nem állítottam be a monitoring rendszert~(ehhez előbb be kellett fejeznem az Uyuni konfigurációját), ezért egy saját Python scriptet készítettem az erőforrások állapotának figyelésére.
+A fejezet elején ismertetett komoly erőforrásigény miatt kíváncsi voltam a hardver adta lehetőségek tényleges kihasználtságára. Mivel ekkor még nem állítottam be a monitoring rendszert~(ehhez előbb be kellett fejeznem az Uyuni konfigurációját), ezért egy saját Python scriptet készítettem az erőforrások állapotának figyelésére. A script teljes forráskódját \az{\nameref{cha:appendix}}~\ref{lst:python-sysstats}.~kódrészlete mutatja~be. Ennek érdekessége, hogy eleinte szerettem volna részletesen, külön-külön nyomon követni az Uyuni által használt alrendszerek erőforrásigényét is. Az ehhez tartozó kód a kódrészlet 88-108.~sorában látható. Ezek a lekérdezések azonban nagyon erőforrás-igényesnek bizonyultak, hiszen végig kellett ellenőrizni az összes futó folyamatot. Emiatt nem volt tartható az egységnyi időnként történő lekérdezés, így a későbbiekben ez a rész kikerült a mérési scriptből.
 
 A mérést egy telepítőforrás-tükrözés során végeztem, hiszen ekkor volt a legnagyobb a rendszer erőforrásigénye. A jelentős mértékű hálózati adatforgalmat követően -- melyet a szoftvercsomagok letöltése idéz elő -- a rendszer hosszas adatbázis-indexelést hajt végre, mely során a processzormagok kihasználtsága közel 100\%-os. A mérési adatokból készített grafikon~\aref{fig:reposync-chart}.~ábrán látható. Jól megfigyelhető, hogy a kezdeti nagy hálózati forgalommal párhuzamosan a spacewalk kötet kihasználtsága is gyorsan nő. A letöltés befejeztével megkezdődik az adatbázis-indexelés, mely során a számítási kapacitás kihasználtságának növekedése tapasztalható, emellett pedig a várakozásoknak megfelelően az adatbázisköteten nő a foglalt terület.
 

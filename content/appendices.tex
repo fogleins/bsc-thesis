@@ -5,6 +5,7 @@
 %----------------------------------------------------------------------------
 \chapter*{\fuggelek}\addcontentsline{toc}{chapter}{\fuggelek}
 \setcounter{chapter}{\appendixnumber}
+\label{cha:appendix}
 %\setcounter{equation}{0} % a fofejezet-szamlalo az angol ABC 6. betuje (F) lesz
 \numberwithin{equation}{section}
 \numberwithin{figure}{section}
@@ -15,10 +16,10 @@
 %----------------------------------------------------------------------------
 \section{A monitoring beállítása előtti adatgyűjtéshez használt program}
 %----------------------------------------------------------------------------
-\lstinputlisting[caption={A monitorozáshoz készített, psutil csomagot használó Python-script, mely csv formátumban menti el a metrikákat.},label=lst:python-sysstats,language=Python]{listings/sysstats.py}
+\lstinputlisting[caption={A monitorozáshoz készített, psutil csomagot használó Python-script, mely csv formátumban menti el a metrikákat.},label=lst:python-sysstats,language=Python, numbers=left]{listings/sysstats.py}
 
 
 %----------------------------------------------------------------------------
 \clearpage\section{E-mail-értesítések beállítását tartalmazó konfigurációs fájl}
 %----------------------------------------------------------------------------
-\lstinputlisting[caption={A monitoring rendszerben e-mail-értesítések küldésére használt konfigurációs fájl.},label=lst:alertmanager-state-full]{listings/alertmanager.yml}
+\lstinputlisting[caption={A monitoring rendszerben e-mail-értesítések küldésére használt konfigurációs fájl.},label=lst:alertmanager-config-full,numbers=left]{listings/alertmanager.yml}

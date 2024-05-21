@@ -9,9 +9,9 @@ update_/etc/prometheus/alertmanager.yml:
 prometheus-alertmanager-service:
     service.running:
         - name: prometheus-alertmanager
-        # az alertmanager service automatikusan induljon boot után
+        # az alertmanager service automatikusan induljon el boot után
         - enable: True
-        # a konfigurációs fájl változását követően a service automatikusan induljon újra
+        # a konfigurációs fájl változását követ(*@ő@*)en a service automatikusan induljon újra
         - watch:
             - file: /etc/prometheus/alertmanager.yml
         
