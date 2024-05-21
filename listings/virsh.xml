@@ -1,0 +1,23 @@
+	<memory unit='KiB'>33554432</memory>
+	<currentMemory unit='KiB'>33554432</currentMemory>
+	<vcpu placement='static'>12</vcpu>
+	<resource>
+		<partition>/machine</partition>
+	</resource>
+	<os>
+		<type arch='x86_64' machine='pc-q35-7.1'>hvm</type>
+	</os>
+	...
+	<devices>
+		<emulator>/usr/bin/qemu-system-x86_64</emulator>
+		<disk type='block' device='disk'>
+			<driver name='qemu' type='raw' cache='none' io='native' discard='unmap'/>
+			<source dev='/dev/vg1/kvm-uyuni' index='1'/>
+			<backingStore/>
+			<target dev='vda' bus='virtio'/>
+			<boot order='2'/>
+			<alias name='virtio-disk0'/>
+			<address type='pci' domain='0x0000' bus='0x04' slot='0x00' function='0x0'/>
+		</disk>
+	...
+	</devices>

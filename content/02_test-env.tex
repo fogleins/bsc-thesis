@@ -130,9 +130,13 @@ A kezdetleges konfigurációt követően telepítettem a \acrshort{kvm} \gls{hyp
 \subsection{Virtuális gépek telepítése}
 \acrshort{vm}-ek telepítéséhez elsősorban a \texttt{virt-install} parancsot használtam. Ez a program lehetővé teszi az összes lényeges paraméter megadását, majd távoliasztal-protokoll használatával (alapértelmezetten \acrshort{spice}, de választhatjuk például a \acrshort{vnc}-t is) megjeleníti a virtuális gép kijelzőjét egy ablakban, melynek segítségével személyre szabhatjuk a telepítést és telepíthetjük az operációs rendszert. A távoli asztalon keresztüli elérés csak a megfelelő környezet, pl. \acrshort{ssh} használata esetén, X~forwardinggal működik. Amennyiben a virt-install nem talál kijelzőt, akkor a telepítés parancssoron keresztül történik. A virt-install sikeres futás esetén egy virtuálisgép-leíró XML-fájlt hoz létre, mely a gép összes paraméterét tárolja~(\ref{lst:virshxml}.~kódrészlet). A későbbiekben a \acrshort{vm} konfigurációjának módosítása esetén ezt a fájlt kell módosítanunk (akár szövegszerkesztővel, akár GUI-n, például virt-manager-rel). A leírófájl a virtuális gép migrációjához is használható.
 
-Azonban még mielőtt a konkrét telepítést elkezdhetnénk, létre kell hoznunk azt a partíciót, melyre a virtuális gép adatai kerülnek. Esetemben ez azt jelentette, hogy az egyes virtuális gépekhez új \acrshort{lvm}-köteteket kellett létrehoznom. Mivel a logikai kötetek számára otthont adó partíciót és a kapcsolódó fizikai kötetet és kötetcsoportot már a hoszt~\acrshort{os} telepítésekor létrehoztam, ezért a~\acrshort{vm}-ek telepítése során elég volt csak egy-egy logikai kötetet~(\acrshort{lv}) létrehoznom, melyhez az \texttt{lvcreate} parancsot használtam~(\ref{lst:lvcreate}~kódrészlet).
+\vspace{2mm}
+\lstinputlisting[caption=Virtuális gép leírófájljának részlete.,label=lst:virshxml]{listings/virsh.xml}
+
+Azonban még mielőtt a konkrét telepítést elkezdhetnénk, létre kell hoznunk azt a partíciót, melyre a virtuális gép adatai kerülnek. Esetemben ez azt jelentette, hogy az egyes virtuális gépekhez új \acrshort{lvm}-köteteket kellett létrehoznom. Mivel a logikai kötetek számára otthont adó partíciót és a kapcsolódó fizikai kötetet és kötetcsoportot már a hoszt~\acrshort{os} telepítésekor létrehoztam, ezért a~\acrshort{vm}-ek telepítése során elég volt csak egy-egy logikai kötetet~(\acrshort{lv}) létrehoznom, melyhez az \texttt{lvcreate} parancsot használtam~(\ref{lst:lvcreate}.~kódrészlet).
 Emellett telepítési forrást is meg kellett adni, melyhez én telepítő lemezképeket használtam. Ilyenkor a~\acrshort{vm} telepítésekor fel kell venni egy virtuális CD-meghajtót a géphez, és meg kell adni a telepítési forrás elérési útját.
 
+\vspace{2mm}
 \begin{lstlisting}[caption=Virtuális gépek logikai kötetének létrehozásához használt parancs.,label=lst:lvcreate]
 	lvcreate -L 20G --name kvm-monitoring vg1
 \end{lstlisting}
@@ -140,34 +144,9 @@ Emellett telepítési forrást is meg kellett adni, melyhez én telepítő lemez
 Ezen túl meg kell adni a gép fontosabb paramétereit is (pl. processzorok száma, memória mennyisége), hogy milyen erőforrásokkal szeretnénk telepíteni azt. A tesztkörnyezetben használt gépek telepítése során elsősorban a dokumentációban ismertetett rendszerkövetelményeket vettem figyelembe az erőforrások meghatározásánál, de mivel aránylag sok erőforrás állt rendelkezésemre, így előfordult, hogy a számítási műveletek gyorsítása érdekében a szükségesnél több magot adtam a virtuális gépeknek. Mivel a~\acrshort{vm}-ek konfigurációja szabadon változtatható a későbbiekben is (esetleg a gép újraindítása szükséges az érvényre jutásukhoz), ezért ez nem jelentett problémát a későbbiekben sem. Emellett a~\acrshort{kvm} támogatja a memória és processzor erőforrások \gls{overcommit}-olását is, azaz nem jelent problémát, ha esetleg a fizikai gépen elérhetőnél több \acrshort{cpu}-erőforrást osztottunk ki a virtuális gépek számára, bár ennek használatára a dolgozathoz készített tesztkörnyezetben nem volt szükség~\cite{RedHatKvmOvercommit}.
 A tesztkörnyezet egyik virtuális gépének telepítéséhez használt parancsot \aref{lst:virtinstall}.~kódrészlet mutatja be.
 
+\vspace{2mm}
 \begin{lstlisting}[caption=Virtuális gép telepítése a virt-install segédprogrammal.,label=lst:virtinstall]
 	virt-install --name uyuni --memory 32768 --vcpus 12 --cdrom /mnt/openSUSE-Leap-15.5-NET-x86_64-Media.iso --os-variant opensuse15.5 --disk /dev/vg1/kvm-uyuni
-\end{lstlisting}
-
-\begin{lstlisting}[caption=Virtuális gép leírófájljának részlete.,label=lst:virshxml]
-	<memory unit='KiB'>33554432</memory>
-	<currentMemory unit='KiB'>33554432</currentMemory>
-	<vcpu placement='static'>12</vcpu>
-	<resource>
-		<partition>/machine</partition>
-	</resource>
-	<os>
-		<type arch='x86_64' machine='pc-q35-7.1'>hvm</type>
-	</os>
-	...
-	<devices>
-		<emulator>/usr/bin/qemu-system-x86_64</emulator>
-		<disk type='block' device='disk'>
-			<driver name='qemu' type='raw' cache='none' io='native' discard='unmap'/>
-			<source dev='/dev/vg1/kvm-uyuni' index='1'/>
-			<backingStore/>
-			<target dev='vda' bus='virtio'/>
-			<boot order='2'/>
-			<alias name='virtio-disk0'/>
-			<address type='pci' domain='0x0000' bus='0x04' slot='0x00' function='0x0'/>
-		</disk>
-	...
-	</devices>
 \end{lstlisting}
 
 A virtuális gép operációs rendszerének telepítése során ki kellett alakítani a kívánt partíciókiosztást, mely a felhasználási körtől függően változott, de alapvetően mindenhol \acrshort{lvm}-alapú kötetkiosztást alkalmaztam. Emellett szükséges volt bizonyos hálózati beállítások (pl.~\acrshort{dns}-szerver címe, gépnév) módosítása is. Ezeken felül és az alapvető adatok~--~mint~például felhasználói fiókok létrehozása, lokalizációs beállítások konfigurálása~--~megadásán túl mást nem volt szükséges átállítani a telepítés során. A sikeres installációt követően foghattam hozzá a virtuális gépeken futó szolgáltatások telepítéséhez, melyeket a következő fejezetekben fogok részletesen ismertetni.
