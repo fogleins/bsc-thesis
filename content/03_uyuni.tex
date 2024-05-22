@@ -86,8 +86,7 @@ Ezen okokból a spacewalk kötet online megnövelése mellett döntöttem. Első
 \end{lstlisting}
 
 \section{Kliensek felvétele}
-A kliensek felvétele során mutatkozott meg az Uyuni egy kisebb hátránya az előfizetés-alapú SUSE~Manager-rel szemben. Míg az előfizetésért cserébe előre konfigurált csatornákat (ún. Product-okat) kapunk, addig az Uyunihoz ez nem áll rendelkezésünkre, a kliensek felvételéhez használt bootstrap\footnote{Az a folyamat, amely során a Salt master inicializálja a Salt minionokat.} megoldás pedig csak ezekkel működik együtt. A bootstrap~folyamat sikeres futtatása többszörös próbálkozást követően sem sikerült~(\ref{fig:uyuni-bootstrap-error}.~ábra). Emiatt az elsődleges konfiguráció során manuálisan kellett gondoskodnom a szükséges csomagok telepítéséről és az ezekhez kapcsolódó beállítások elvégzéséről. A gyakorlatban ez azt jelentette, hogy a kezelni kívánt rendszerekre telepíteni kellett a \texttt{venv-salt-minion} csomagot, emellett szükséges volt két konfigurációs fájl létrehozása is, melyek a Salt minion azonosítóját (amilyen néven a gép megjelenik az~Uyuni felületén) és a Salt master (az~Uyuni szerver) IP-címét tartalmazták~(\ref{lst:salt-client-config}.~kódrészlet).
-Ezt követően a kapcsolódó Salt service újraindításával a kliens kapcsolatot kezdeményezett a Salt masterrel, és az Uyuni felületén lehetővé vált a kliens csatlakozási kérelmének elfogadása. A kérelem elfogadását követően az Uyuni lekérdezett néhány adatot a kliens állapotáról (pl. telepített csomagok, hardveres erőforrások), ez után az újonnan bevont rendszer már teljes körűen kezelhetővé vált az Uyuni felületén keresztül.
+A kliensek felvétele során mutatkozott meg az Uyuni egy kisebb hátránya az előfizetés-alapú SUSE~Manager-rel szemben. Míg az előfizetésért cserébe előre konfigurált csatornákat (ún. Product-okat) kapunk, addig az Uyunihoz ez nem áll rendelkezésünkre, a kliensek felvételéhez használt bootstrap\footnote{Az a folyamat, amely során a Salt master inicializálja a Salt minionokat.} megoldás pedig csak ezekkel működik együtt. A bootstrap~folyamat sikeres futtatása többszörös próbálkozást követően sem sikerült, \aref{fig:uyuni-bootstrap-error}.~ábrán látható hibaüzenet jelent meg a futtatást követően.
 
 \begin{figure}[ht]
 	\centering
@@ -96,6 +95,18 @@ Ezt követően a kapcsolódó Salt service újraindításával a kliens kapcsola
 	\label{fig:uyuni-bootstrap-error}
 \end{figure}
 
+Emiatt az elsődleges konfiguráció során manuálisan kellett gondoskodnom a szükséges csomagok telepítéséről és az ezekhez kapcsolódó beállítások elvégzéséről. A gyakorlatban ez azt jelentette, hogy a kezelni kívánt rendszerekre telepíteni kellett a \texttt{venv-salt-minion} csomagot, emellett szükséges volt két konfigurációs fájl létrehozása is, melyek a Salt minion azonosítóját (amilyen néven a gép megjelenik az~Uyuni felületén) és a Salt master~(az~Uyuni szerver) IP-címét tartalmazták~(\ref{lst:salt-client-config}.~kódrészlet).
+
+\vspace{2mm}
+\begin{lstlisting}[caption=A manuális konfiguráció során létrehozott állományok tartalma.,label=lst:salt-client-config,escapechar=?]
+	?\underline{10-151-7-5:/etc/venv-salt-minion/minion.d \#}? cat id.conf
+	id: kvm.spot.internal
+	?\underline{10-151-7-5:/etc/venv-salt-minion/minion.d \#}? cat master.conf
+	master: 10.151.7.1
+\end{lstlisting}
+
+Ezt követően a kapcsolódó Salt service újraindításával a kliens kapcsolatot kezdeményezett a Salt masterrel, és az Uyuni felületén lehetővé vált a kliens csatlakozási kérelmének elfogadása. A kérelem elfogadását követően az Uyuni lekérdezett néhány adatot a kliens állapotáról (pl. telepített csomagok, hardveres erőforrások), ez után az újonnan bevont rendszer már teljes körűen kezelhetővé vált az Uyuni felületén keresztül, és a kliens adatai \aref{fig:uyuni-system-details}.~ábrán látható módon elérhetővé válnak.
+
 % TODO: kép nagyítása
 \begin{figure}[ht]
 	\centering
@@ -103,13 +114,6 @@ Ezt követően a kapcsolódó Salt service újraindításával a kliens kapcsola
 	\caption{A bevont rendszer adatainak frissítését követően számos részletet láthatunk a gépről, és mi is adhatunk meg bizonyos adatokat.}
 	\label{fig:uyuni-system-details}
 \end{figure}
-
-\begin{lstlisting}[caption=A manuális konfiguráció során létrehozott állományok tartalma.,label=lst:salt-client-config,escapechar=?]
-	?\underline{10-151-7-5:/etc/venv-salt-minion/minion.d \#}? cat id.conf
-	id: kvm.spot.internal
-	?\underline{10-151-7-5:/etc/venv-salt-minion/minion.d \#}? cat master.conf
-	master: 10.151.7.1
-\end{lstlisting}
 
 \subsection{Rendszertípusok és Salt Formulák}
 A kezdeti információgyűjtés során az infrastruktúramenedzsment-rendszer megpróbálja meghatározni a rendszer típusát (fizikai gép, virtualizációs gazdagép, virtuális gép). Ezeket később mi is megadhatjuk, illetve a betöltött szereptől függően úgynevezett Salt Formulákat rendelhetünk hozzájuk. Ezek olyan előre elkészített Salt state fájlok, melyek a gyakran használt beállítások megadását igyekszenek egyszerűbbé tenni.
@@ -181,9 +185,9 @@ Egy másik, rövidebb szinkronizálás során a virtuális gépeket futtató gaz
 \end{figure}
 
 \section{Frissítési értesítések}
-Teljes körű infrastruktúramenedzsment-megoldásként az Uyuni lehetőséget biztosít a kezelt gépekre telepített csomagok állapotának folyamatos követésére: minden nap, egy előre meghatározott időpontban frissíti a telepítési források adatait, és összeveti az ezekben elérhető szoftververziókat a kezelt gépekre telepítettekével. Ennek köszönhetően a tesztkörnyezet gépeihez  frissítésekről folyamatosan értesültem e-mailben, így mindig naprakész információk álltak a rendelkezésemre a frissítéseket illetően.
+Teljes körű infrastruktúramenedzsment-megoldásként az Uyuni lehetőséget biztosít a kezelt gépekre telepített csomagok állapotának folyamatos követésére: minden nap, egy előre meghatározott időpontban frissíti a telepítési források adatait, és összeveti az ezekben elérhető szoftververziókat a kezelt gépekre telepítettekével. Ennek köszönhetően a tesztkörnyezet gépeihez  frissítésekről folyamatosan értesültem e-mailben, így mindig naprakész információk álltak rendelkezésemre a frissítéseket illetően.
 
-Ezek közül kiemelt fontosságúak lehetnek a biztonsági frissítések, hiszen ezek között olyan sérülékenységek javításai is szerepelhetnek, mely kockázatot jelent a rendszer helyes működésére nézve. Ilyen értesítésből körülbelül két és fél hét alatt 9 érkezett, ezeken felül pedig nagyságrendileg 40~további, alacsonyabb prioritású frissítésről kaptam értesítést. Ezen felül az Uyuni felületére belépve az áttekintés oldalon és a rendszerek listájában is látható a kezelt rendszereink frissítéseinek állapota~(\ref{fig:uyuni-security-status}.~ábra).
+Ezek közül kiemelt fontosságúak lehetnek a biztonsági frissítések, hiszen ezek között olyan sérülékenységek javításai is szerepelhetnek, mely kockázatot jelent a rendszer helyes működésére nézve. Ilyen értesítésből körülbelül két és fél hét alatt kilenc érkezett, ezeken felül pedig nagyságrendileg negyven~további, alacsonyabb prioritású frissítésről kaptam értesítést. Ezen felül az Uyuni felületére belépve az áttekintés oldalon és a rendszerek listájában is látható a kezelt rendszereink frissítéseinek állapota~(\ref{fig:uyuni-security-status}.~ábra).
 
 % TODO: kép nagyítása
 \begin{figure}[ht]
