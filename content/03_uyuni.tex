@@ -71,6 +71,7 @@ Az első szoftvercsomag-tároló tükrözése a dokumentációban javasolt 50~GB
 \subsection{Online kötetnövelés}
 Ezen okokból a spacewalk kötet online megnövelése mellett döntöttem. Első lépésként a hosztgépen terjesztettem ki a virtuális gép számára fenntartott partíciót (a~\texttt{kvm-uyuni} logikai kötetet). \Aref{lst:virsh-blockresize}.~kódrészleten látható, hogy ezt követően a virtuális gép még nem tudja használni a nagyobb méretű kötetet, szükséges még a \texttt{virsh blockresize} parancs futtatása, melynek hatására a virtuális gép számára is láthatóvá válik a nagyobb kötetméret. Ezt követően a~\acrshort{vm}-en növeltem meg a logikai kötetek alapjául szolgáló fizikai kötet~(\acrshort{pv}) méretét, melyet követően már a megszokott módon volt lehetőség a logikai kötet bővítésére.
 
+\vspace{2mm}
 \begin{lstlisting}[caption=Az infrastruktúramenedzsment-programokat futtató virtuális gép kötetének online megnövelése a gazdagépen.,label=lst:virsh-blockresize,escapechar=?]
 	?\underline{10-151-7-5:$\sim$ \#}? virsh domblkinfo uyuni /dev/vg1/kvm-uyuni
 	Capacity:       268435456000

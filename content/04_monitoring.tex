@@ -27,6 +27,7 @@ A Grafana támogatja a Prometheus saját lekérdezőnyelvével, a PromQL-lel val
 A Prometheus exporterek egy speciális formátumban teszik közzé az általuk kinyert adatokat. A legegyszerűbb esetben ezek szóközzel elválasztott kulcs-érték párok. Ilyen adatpárra mutat példát \aref{lst:prometheus-data-format}.~kódrészlet első~sora. A mérőszám elnevezése után kapcsos zárójelekbe szűrőket~(filter) helyezhetünk, ahogy az \aref{lst:prometheus-data-format}.~kódrészlet második~sorában is látható. Lekérdezés esetén az adatokat ugyanezzel a szintaktikával szűrhetjük.
 % TODO: lekérdezésre példa
 
+\vspace{2mm}
 \begin{lstlisting}[caption=Prometheus exporterek által közzétett adatok.,label=lst:prometheus-data-format, numbers=left]
 	node_load1 0.35
 	node_hwmon_temp_celsius{chip="platform_coretemp_1",sensor="temp2"} 28
