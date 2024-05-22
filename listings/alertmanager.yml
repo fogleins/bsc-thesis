@@ -3,8 +3,8 @@ global:
   smtp_smarthost: "localhost:25"
   smtp_from: "alertmanager@monitoring.spot.internal"
 
-# A legfels(*@ő@*) színt(*@ű@*) útvonal, amibe beérkeznek a riasztások, amiket további
-#   'route'-ok definiálásával lehet részletesebben sz(*@ű@*)rni
+# A legfels(*@ő@*) színt(*@ű@*) útvonal, amibe beérkeznek a riasztások, amiket
+#   további 'route'-ok definiálásával lehet részletesebben sz(*@ű@*)rni
 route:
   # A részletesebb sz(*@ű@*)r(*@ő@*)kre nem illeszked(*@ő@*) értesítéseket megkapó csoport
   receiver: "it-team"
@@ -17,8 +17,8 @@ route:
   #     csoportosítva kerüljenek kiküldésre
   group_wait: 30s
 
-  # Az els(*@ő@*) riasztást követ(*@ő@*)en ennyit várunk a csoportot érint(*@ő@*) további riasztások
-  #     kiküldése el(*@ő@*)tt
+  # Az els(*@ő@*) riasztást követ(*@ő@*)en ennyit várunk a csoportot érint(*@ő@*)
+  #     további riasztások kiküldése el(*@ő@*)tt
   group_interval: 5m
 
   # Sikeres küldés esetén ennyi ideig nem küldjük újra az értesítéseket

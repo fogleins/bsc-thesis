@@ -1,10 +1,11 @@
 #!/usr/bin/python
 
-import psutil
-import csv
 import sys
+import csv
 
 from datetime import datetime
+
+import psutil
 
 script_start = datetime.now()
 field_names = [
@@ -58,7 +59,7 @@ field_names = [
     "processes"
 ]
 
-with open(f"sysstats_{datetime.now().isoformat()}.csv", "w", newline="") as csvfile:
+with open(f"sysstats_{datetime.now().isoformat()}.csv", "w", newline="", encoding="utf-8") as csvfile:
     writer = csv.DictWriter(csvfile, fieldnames=field_names)
     writer.writeheader()
 
@@ -79,19 +80,19 @@ with open(f"sysstats_{datetime.now().isoformat()}.csv", "w", newline="") as csvf
             swap = psutil.swap_memory()
             io = psutil.disk_io_counters()
 
-            disk_usage = dict()
+            disk_usage = {}
             for disk in psutil.disk_partitions():
                 disk_usage[disk.mountpoint] = psutil.disk_usage(disk.mountpoint).percent
 
             net = psutil.net_io_counters()
 
-            processes = list()
+            processes = []
             monitored_processes = [ "postgre", "pgsql", "spacewalk", "uyuni", "tomcat", "salt" ]
             all_processes = psutil.process_iter()
             for proc in all_processes:
                 for monproc in monitored_processes:
                     if monproc in proc.name().lower():
-                        process_details = dict()
+                        process_details = {}
                         process_details["name"] = proc.name()
                         pid = proc.pid
                         monproc_obj = psutil.Process(pid)
@@ -172,6 +173,6 @@ with open(f"sysstats_{datetime.now().isoformat()}.csv", "w", newline="") as csvf
             print("ERROR - Process doesn't exist")
             continue
         except Exception as e:
-        # only print the exception, but do not exit
+            # only print the exception, but do not exit
             print(f"ERROR - General exception: {e}")
             continue
