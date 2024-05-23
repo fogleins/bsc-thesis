@@ -35,7 +35,7 @@ A Prometheus exporterek egy speciális formátumban teszik közzé az általuk k
 
 \section{Telepítés, konfiguráció}
 \label{sect:monitoring-installation}
-A környezet beüzemelését nagyban segítette, hogy a Prometheus monitoring rendszert az Uyuni külön Salt~Formulákon keresztül támogatja. Így lehetőség van az infrastruktúramenedzsment rendszerbe bevont klienseken manuális csomagtelepítés nélkül egy kezdetleges monitoring környezetet kialakítani. Ez a gyakorlatban azt jelentette, hogy az Uyuni a beállított Formulák alapján a kliensekre telepítette az alapvető rendszerinformációkat lekérdező \textit{Node exportert}, míg a monitoring szerveren egy alapbeállításokkal rendelkező Prometheus szervert és a hozzá kapcsolódó Grafana szervert telepítette.
+A környezet beüzemelését nagyban segítette, hogy a Prometheus monitoring rendszert az Uyuni külön Salt~Formulákon keresztül támogatja. Így lehetőség van az infrastruktúra-menedzsment rendszerbe bevont klienseken manuális csomagtelepítés nélkül egy kezdetleges monitoring környezetet kialakítani. Ez a gyakorlatban azt jelentette, hogy az Uyuni a beállított Formulák alapján a kliensekre telepítette az alapvető rendszer-információkat lekérdező \textit{Node exportert}, míg a monitoring szerveren egy alapbeállításokkal rendelkező Prometheus szervert és a hozzá kapcsolódó Grafana szervert telepítette.
 
 % TODO: nagyobb betűméret a képen
 \begin{figure}[ht]
@@ -74,7 +74,7 @@ Ahhoz, hogy a monitoring rendszer az elvárt módon működjön, szükséges vol
 		\hline
 		9090 & Prometheus exporter & A Prometheus állapotáról tesz közzé adatokat (pl.~hibás lekérések száma, lekérések mérete).  \\
 		\hline
-		9100 & Node exporter & Linux hosztokról publikál számos hardver- és kernelmetrikát (pl.~erőforráshasználat, kontextusváltások). \\
+		9100 & Node exporter & Linux hosztokról publikál számos hardver- és kernelmetrikát (pl.~erőforrás-használat, kontextusváltások). \\
 		\hline
 		9117 & Apache exporter & Az Apache webszerverről ad meg mérőszámokat (pl.~egyes HTTP-státuszkódokhoz tartozó lekérdezések száma, \acrshort{cpu}-idő).  \\
 		\hline
