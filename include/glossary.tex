@@ -1,20 +1,20 @@
-\newacronym{vm}{VM}{virtual~machine}
-\newacronym{ha}{HA}{high~availability}
+\newacronym{vm}{VM}{Virtual~Machine}
+\newacronym{ha}{HA}{High~Availability}
 \newacronym{lvm}{LVM}{Logical Volume Manager}
 \newacronym{kvm}{KVM}{Kernel-based Virtual Machine}
-\newacronym{api}{API}{application programming interface}
-\newacronym{pv}{PV}{physical volume}
-\newacronym{vg}{VG}{volume group}
-\newacronym{lv}{LV}{logical volume}
-\newacronym{ssh}{SSH}{secure shell}
-\newacronym{vnc}{VNC}{virtual network computing}
+\newacronym{api}{API}{Application Programming Interface}
+\newacronym{pv}{PV}{Physical Volume}
+\newacronym{vg}{VG}{Volume Group}
+\newacronym{lv}{LV}{Logical Volume}
+\newacronym{ssh}{SSH}{Secure Shell}
+\newacronym{vnc}{VNC}{Virtual Network Computing}
 \newacronym{rpm}{RPM}{RPM Package Manager, eredetileg Red Hat Package Manager}
-\newacronym{os}{OS}{operating system}
+\newacronym{os}{OS}{Operating System}
 \newacronym{sle}{SLE}{SUSE Linux Enterprise}
-\newacronym{cpu}{CPU}{central processing unit}
-\newacronym{ssd}{SSD}{solid state drive}
+\newacronym{cpu}{CPU}{Central Processing Unit}
+\newacronym{ssd}{SSD}{Solid State Drive}
 \newacronym{spice}{SPICE}{Simple Protocol for Independent Computing Environments}
-\newacronym{dns}{DNS}{domain name system}
+\newacronym{dns}{DNS}{Domain Name System}
 \newacronym{smtp}{SMTP}{Simple Mail Transfer Protocol}
 \newacronym{raid}{RAID}{Redundant Array of Independent Disks}
 
@@ -27,7 +27,7 @@
 \newglossaryentry{hotswap}
 {
 	name={hot swap},
-	description={Számítógép-komponensek eltávolítása vagy hozzáadása egy futó rendszerhez (annak leállítása vagy újraindítása nélkül)}
+	description={Számítógép-komponensek eltávolítása vagy hozzáadása egy futó rendszerhez annak leállítása vagy újraindítása nélkül}
 }
 
 \newglossaryentry{libvirt}
@@ -40,4 +40,10 @@
 {
 	name=overcommit,
 	description={Hatékonyabb erőforráskihasználást lehetővé tevő technológia egyes \gls{hypervisor}okban. Használatával a virtuális gépek számára több virtuális erőforrást oszthatunk ki, mint amennyi ténylegesen rendelkezésre áll a gazdagépen. Alapvetően előnyös lehet a használata, mivel a \acrshort{vm}-ek általában nem használják ki a nekik biztosított erőforrások 100\%-át, de a gazdagép túlterhelése esetén jelentős teljesítményvisszaeséssel járhat, ezért fontos, hogy használata esetén még körültekintőbben monitorozzuk rendszereinket~\cite{RedHatKvmOvercommit}}
+}
+
+\newglossaryentry{highstate}
+{
+	name=highstate,
+	description={A Salt keretrendszerben egy olyan speciális state, mely magában foglalja egy adott klienshez vagy egy klienscsoporthoz rendelt összes state beállítását. A highstate végrehajtása során a rendszer megpróbálja a state fájlokban meghatározottakkal összhangba hozni a kiválasztott klienseket}
 }

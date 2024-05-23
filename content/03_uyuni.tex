@@ -143,7 +143,7 @@ Az Uyuni egy fontos része a konfiguráció-menedzsment és a szoftvercsomagok t
 
 Csomagok és azok konfigurációjának kezeléséhez létre kell hoznunk egy konfigurációs csatornát, egy úgynevezett state channelt, mely tartalmazni fogja az elkészített state fájlt és az esetlegesen használt konfigurációs állományokat. A state fájl megírását követően a csatorna hozzárendelhető a kezelt hosztokhoz.
 
-Miután ez megtörtént, a gépekre, melyekhez hozzárendeltük az adott state-et, ki kell küldeni egy úgynevezett highstate-et. Ez egy különleges state, melyet a rendszer állít elő a feliratkozott state-ek tartalmából, a feliratkozási hierarchiát figyelembe véve. A highstate tehát minden hozzárendelt state channel adatait  tartalmazza, és a lefuttatásával jutnak érvényre a frissen felvett módosítások is. \Aref{fig:uyuni-channelsub}.~ábrán látható, hogy az Uyuni lehetőséget biztosít több kliens kiválasztására is, ezt kihasználva két hosztra egyszerre alkalmaztam a módosításokat.
+Miután ez megtörtént, a gépekre, melyekhez hozzárendeltük az adott state-et, ki kell küldeni egy úgynevezett~\gls{highstate}-et. Ez egy különleges state, melyet a rendszer állít elő a feliratkozott state-ek tartalmából, a feliratkozási hierarchiát figyelembe véve. A~\gls{highstate} tehát minden hozzárendelt state channel adatait  tartalmazza, és a lefuttatásával jutnak érvényre a frissen felvett módosítások is. \Aref{fig:uyuni-channelsub}.~ábrán látható, hogy az Uyuni lehetőséget biztosít több kliens kiválasztására is, ezt kihasználva két hosztra egyszerre alkalmaztam a módosításokat.
 
 % TODO: kép nagyítása
 \begin{figure}[ht]
