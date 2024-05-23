@@ -51,7 +51,7 @@ A monitoring rendszer kialakítása során nehézséget jelentett, hogy openSUSE
 \subsection{Tűzfal beállítása}
 Az operációs rendszerek telepítése során a tűzfal engedélyezését választottam. Ez azt jelentette, hogy szinte minden port zárva volt a külvilág felé, így a Prometheus szerver sem tudta elérni az exporterek által szolgáltatott adatokat.
 
-Ahhoz, hogy a monitoring rendszer az elvárt módon működjön, szükséges volt a tűzfalszabályok módosítása. A telepített rendszereken a \texttt{firewalld} az alapértelmezett tűzfal, melynek a beállításait a \texttt{firewall-cmd} segédprogram segítségével tudtam módosítani~(\ref{lst:firewalld-add-port}.~kódrészlet első~sora). A kódrészlet harmadik sorában a szükséges portok kinyitását követő állapot látható az Uyunit futtató szerver esetében, a monitoring rendszerben használt exportereket, rövid leírásukat és a kapcsolódó portszámokat \aref{tab:monitoring-exporters}.~táblázat tartalmazza. A monitoring szerverhez tartozó Salt~Formula alkalmazásával automatikusan telepítésre kerülnek a Tomcat és Taskomatic exporterek. Ezek az Uyuni alapjait adó webes keretrendszerről és a használt feladatütemezőről biztosítanak statisztikákat.
+Ahhoz, hogy a monitoring rendszer az elvárt módon működjön, szükséges volt a tűzfalszabályok módosítása. A telepített rendszereken a \texttt{firewalld} az alapértelmezett tűzfal, melynek a beállításait a \texttt{firewall-cmd} segédprogram segítségével tudtam módosítani~(\ref{lst:firewalld-add-port}.~kódrészlet első~sora). A kódrészlet harmadik sorában a szükséges portok kinyitását követő állapot látható az Uyunit futtató szerver esetében, a monitoring rendszerben használt exportereket, rövid leírásukat és a kapcsolódó portszámokat \aref{tab:monitoring-exporters}.~táblázat tartalmazza. A monitoring szerverhez tartozó Salt~Formula alkalmazásával automatikusan települ a Tomcat és Taskomatic exporter. Ezek az Uyuni alapjait adó webes keretrendszerről és a használt feladatütemezőről biztosítanak statisztikákat.
 
 \vspace{2mm}
 \begin{lstlisting}[caption=Tűzfalszabályok módosítása.,label=lst:firewalld-add-port, numbers=left,escapechar=?]
@@ -147,9 +147,9 @@ A gyűjtött adatok áttekintése, elemzése segítségünkre lehet további ren
 % TODO: két-két és fél számmal?
 Bár a tesztkörnyezet körülbelül két-két és fél hónapos folyamatos üzemeltetése során nem voltak jelentős kimaradások, az Uyuni kezdetleges konfigurációja során az egyik telepítőforrás tükrözése során többször is leállt az azt futtató gép, így valós helyzetben nyílt alkalmam a metrikák visszanézésére, és a hiba okának felkutatására. Az incidens során megjelenő grafikont \aref{fig:reboot-grafana}.~ábra mutatja be. A grafikon jobb oldalán látható a négy leállás, a bal szélén pedig láthatjuk, hogy néhány órával korábban hasonlóan magas terhelés mellett nem lépett fel a hiba. A grafikon $ y $ tengelyén láthatjuk, hogy az nem 100\%-ig, hanem sokkal tovább fut. Ennek oka, hogy a rendszerterhelés számítása során az egy processzormagra eső maximális terhelést tekintjük a 100\%-nak, így egy 24~\acrshort{cpu}-val rendelkező gép esetén a maximális érték 2400\% lenne. A grafikonon 1600\%~körülre esik a legnagyobb terhelés, ami összhangban van az Uyunit futtató virtuális gép által maximálisan használható 16~processzormaggal. Mint később kiderült, a hibát hardveres hiba okozta, a virtuális gép által használható processzormagok csökkentésével a probléma nem jelentkezett többé.
 
-\begin{figure}[ht]
+\begin{figure}[h!t]
 	\centering
 	\includegraphics[width=15cm]{figures/reboot-grafana-invert.jpg}
-	\caption{A telepítőforrás-tükrözés során tapasztalt szolgáltatáskiesések a Grafanaban megjelenő grafikonon.}
+	\caption{A telepítőforrás-tükrözés során tapasztalt szolgáltatáskiesések a Grafanaban megjelenő grafikonon. Az ábrán a~rendszer terheltsége látható az idő függvényében.}
 	\label{fig:reboot-grafana}
 \end{figure}

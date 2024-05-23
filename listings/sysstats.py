@@ -59,7 +59,8 @@ field_names = [
     "processes"
 ]
 
-with open(f"sysstats_{datetime.now().isoformat()}.csv", "w", newline="", encoding="utf-8") as csvfile:
+with open(f"sysstats_{datetime.now().isoformat()}.csv", "w", newline="",
+          encoding="utf-8") as csvfile:
     writer = csv.DictWriter(csvfile, fieldnames=field_names)
     writer.writeheader()
 
