@@ -35,7 +35,7 @@ A Prometheus exporterek egy speciális formátumban teszik közzé az általuk k
 
 \section{Telepítés, konfiguráció}
 \label{sect:monitoring-installation}
-A környezet beüzemelését nagyban segítette, hogy a Prometheus monitoring rendszert az~Uyuni külön Salt~Formulákon keresztül támogatja. Így lehetőség van az infrastruktúra-menedzsment rendszerbe bevont klienseken manuális csomagtelepítés nélkül egy kezdetleges monitoring környezetet kialakítani. Ez a gyakorlatban azt jelentette, hogy az Uyuni a beállított Formulák alapján a kliensekre telepítette az alapvető rendszer-információkat lekérdező \textit{Node exportert}, míg a monitoring szerveren egy alapbeállításokkal rendelkező Prometheus szervert és a hozzá kapcsolódó Grafana szervert telepítette.
+A környezet beüzemelését nagyban segítette, hogy a Prometheus monitoring rendszert az~Uyuni külön Salt~Formulákon keresztül támogatja. Így lehetőség van az infrastruktúra-menedzsment rendszerbe bevont klienseken manuális csomagtelepítés nélkül egy kezdetleges monitoring környezetet kialakítani. Ez a gyakorlatban azt jelentette, hogy az Uyuni a beállított Formulák alapján~(\ref{fig:prometheus-formula}.~ábra) a kliensekre telepítette az alapvető rendszer-információkat lekérdező \textit{Node exportert}, míg a monitoring szerveren egy alapbeállításokkal rendelkező Prometheus szervert és a hozzá kapcsolódó Grafana szervert telepítette. A Salt~Formula alkalmazásával automatikusan települt a Tomcat és Taskomatic exporter, melyek az Uyuni alapjait adó webes keretrendszerről és a~használt feladatütemezőről biztosítanak statisztikákat.
 
 % TODO: nagyobb betűméret a képen
 \begin{figure}[ht]
@@ -46,12 +46,12 @@ A környezet beüzemelését nagyban segítette, hogy a Prometheus monitoring re
 \end{figure}
 
 \subsection{Konténerhoszt monitorozása}
-A monitoring rendszer kialakítása során nehézséget jelentett, hogy openSUSE Leap Micro-ra nem volt hivatalosan elérhető a felügyelt gépekről hardver- és kernelstatisztikákat szolgáltató Node exporter szoftvercsomag formájában. Emiatt eleinte a konténerhoszt monitorozására nem volt lehetőségem. A megoldást az jelentette, hogy az exportert egy konténerben telepítettem a virtuális gépre. Mivel a konténer azonban a gazdagéptől elkülönülten fut, ezért módosítani kellett a konténer futtatásához használt parancsot. A~\texttt{--path.rootfs=/host} kapcsoló beállításával az exporter már a konténerből is képes volt elérni a gazdagép metrikáit, így ezt a hosztot is sikerült bevonni a monitoring rendszerbe.
+A monitoring rendszer kialakítása során nehézséget jelentett, hogy openSUSE Leap Micro-ra nem volt hivatalosan elérhető a felügyelt gépekről hardver- és kernelstatisztikákat szolgáltató Node exporter szoftvercsomag formájában. Emiatt eleinte a konténerhoszt monitorozására nem volt lehetőségem. A megoldást az jelentette, hogy az exportert egy konténerben telepítettem a virtuális gépre. Mivel a konténer azonban a gazdagéptől elkülönülten fut, ezért módosítani kellett a konténer futtatásához használt parancsot. A~\texttt{--path.rootfs=/host} kapcsoló beállításával az exporter már a konténerből is képes volt elérni a gazdagép metrikáit, így ez a hoszt is monitorozhatóvá vált.
 
 \subsection{Tűzfal beállítása}
 Az operációs rendszerek telepítése során a tűzfal engedélyezését választottam. Ez azt jelentette, hogy szinte minden port zárva volt a külvilág felé, így a Prometheus szerver sem tudta elérni az exporterek által szolgáltatott adatokat.
 
-Ahhoz, hogy a monitoring rendszer az elvárt módon működjön, szükséges volt a tűzfalszabályok módosítása. A telepített rendszereken a \texttt{firewalld} az alapértelmezett tűzfal, melynek a beállításait a \texttt{firewall-cmd} segédprogram segítségével tudtam módosítani~(\ref{lst:firewalld-add-port}.~kódrészlet első~sora). A kódrészlet harmadik sorában a szükséges portok kinyitását követő állapot látható az Uyunit futtató szerver esetében, a monitoring rendszerben használt exportereket, rövid leírásukat és a kapcsolódó portszámokat \aref{tab:monitoring-exporters}.~táblázat tartalmazza. A monitoring szerverhez tartozó Salt~Formula alkalmazásával automatikusan települ a Tomcat és Taskomatic exporter. Ezek az Uyuni alapjait adó webes keretrendszerről és a~használt feladatütemezőről biztosítanak statisztikákat.
+Ahhoz, hogy a monitoring rendszer az elvárt módon működjön, szükséges volt a tűzfalszabályok módosítása. A telepített rendszereken a \texttt{firewalld} az alapértelmezett tűzfal, melynek a beállításait a \texttt{firewall-cmd} segédprogram segítségével tudtam módosítani~(\ref{lst:firewalld-add-port}.~kódrészlet első~sora). A kódrészlet harmadik sorában a szükséges portok kinyitását követő állapot látható az Uyunit futtató szerver esetében, a monitoring rendszerben használt exportereket, rövid leírásukat és a kapcsolódó portszámokat \aref{tab:monitoring-exporters}.~táblázat tartalmazza, a monitoring rendszer felépítése és a használt exporterek portszámai \aref{fig:monitoring-setup}.~ábrán láthatóak.
 
 \vspace{2mm}
 \begin{lstlisting}[caption=Tűzfalszabályok módosítása.,label=lst:firewalld-add-port, numbers=left,escapechar=?]
@@ -105,7 +105,7 @@ A tesztkörnyezetben az Alertmanager konfigurációját Salt state-tel végeztem
 \begin{figure}
 	\centering
 	\includegraphics[width=15cm]{figures/alertmanager-state.png}
-	\caption{A monitoring értesítések kezeléséhez használt Salt state.}
+	\caption{A monitoring értesítések kezeléséhez használt konfigurációs csatorna.}
 	\label{fig:alertmanager-state}
 \end{figure}
 
