@@ -10,7 +10,7 @@ Mivel ez a megoldás hasznosnak és érdekesnek tűnt számomra, és a dolgozat 
 
 \section{Telepítés}
 \label{sect:uyuni-install}
-Az Uyuni meglehetősen erőforrás-igényes, a telepítéséhez minimum négy CPU-mag, 16~GB memória és  több száz gigabyte tárhely lehet szükséges a használni kívánt telepítőforrásoktól függően~\cite{UyuniInstallGuide}. Éles környezetben még ennél is több memóriát javasolnak, így az Uyuni számára létrehozott virtuális gép lett a környezet leginkább erőforrás-igényes rendszere, melynek telepítéshez használt parancs és a \acrshort{vm} leírója látható \aref{lst:virtinstall}. és \aref{lst:virshxml}.~kódrészleteken. Ezeken megfigyelhetjük, hogy a virtuális gépet 12~CPU-maggal és 32~GB memóriával hoztam létre, a particionálásra a későbbiek folyamán térek ki részletesen.
+Az Uyuni meglehetősen erőforrás-igényes, a telepítéséhez minimum négy CPU-mag, 16~GB~memória és  több száz gigabyte tárhely lehet szükséges a használni kívánt telepítőforrásoktól függően~\cite{UyuniInstallGuide}. Éles környezetben még ennél is több memóriát javasolnak, így az Uyuni számára létrehozott virtuális gép lett a környezet leginkább erőforrás-igényes rendszere, melynek telepítéshez használt parancs és a \acrshort{vm} leírója látható \aref{lst:virtinstall}. és \aref{lst:virshxml}.~kódrészleteken. Ezeken megfigyelhetjük, hogy a virtuális gépet 12~CPU-maggal és 32~GB~memóriával hoztam létre, a particionálásra a későbbiek folyamán térek ki részletesen.
 
 Ahogy a korábbiakban írtam, az Uyuni jó támogatottságnak örvend az openSUSE platformon. A telepítési kézikönyvben egy dedikált openSUSE Leap 15.5-ös \acrshort{os}-verziót futtató számítógépet javasolnak az infrastruktúramenedzsment-program telepítéséhez~\cite{UyuniInstallGuide}.
 Ennek megfelelően én is ezt a verziót telepítettem, és bár a Leap alapértelmezett telepítési forrásaiban nem szerepel az Uyuni, de az ezt tartalmazó telepítőforrást egyetlen paranccsal felvehetjük, és ezt követően a segítségével telepíthetjük is az Uyunit.
@@ -48,7 +48,7 @@ A particionálás kérdése azért is kiemelt fontosságú az Uyuni telepítése
 Ahogy az előző alfejezetben már említettem, az Uyuni egyik központi feladata a telepítőforrások és szoftvercsomagok kezelése a bevont rendszereken. Ehhez a használni kívánt telepítőforrásokat le kell tükröznünk az Uyunit futtató szerverre. Ez a megoldás elsőre túlzásnak tűnhet, hiszen egy-egy ilyen forrás több tíz, egyes esetekben több száz gigabyte lehet, azonban egy nagy méretű infrastruktúránál megvannak az előnyei. Gondoljunk csak bele, hogy mekkora hálózati forgalmat takaríthatunk meg azzal, hogy a telepítendő szoftverek és operációsrendszer-frissítések letöltésekor nem kell minden esetben az internetről letölteni a szükséges csomagokat, hanem ezt elegendő mindössze egyszer, az Uyuni szerveren megtenni, és onnantól kezdve az összes kliens már a belső hálózatról érheti el a~szükséges programokat.
 Emellett hasznos lehet egy offline példány megtartása is a telepített csomagokból, hiszen előfordulhat, hogy egy harmadik fél által üzemeltetett telepítési forrás elérhetetlenné válik, és így nem férünk hozzá a kívánt csomagokhoz.
 
-Ahhoz, hogy egy-egy ilyen csomagtárhelyet letükrözhessünk, létre kell hozni úgynevezett \textit{Software Channel}-eket, melyek lényegében a tárolót~(repository) csomagolják be egy magasabb szintű egységbe. Ez tárolja, hogy milyen csomagok érhetőek el, ezek milyen architektúrán használhatóak, lehetővé teszik a csomagforrások kezelését, és hozzárendelhetjük őket a kliensekhez. A csatornák által tartalmazott repository-k tárolják, hogy milyen címen érhető el a tükrözendő telepítőforrás, és hogy az adott repository melyik csatornához van hozzárendelve.
+Ahhoz, hogy egy-egy ilyen csomagtárhelyet letükrözhessünk, létre kell hozni úgynevezett \textit{Software Channel}-eket, melyek lényegében a tárolót~(repository) csomagolják be egy magasabb szintű egységbe. Ez tárolja, hogy milyen csomagok érhetőek el, ezek milyen architektúrán használhatóak, lehetővé teszik a csomagforrások kezelését, és hozzárendelhetjük őket a kliensekhez. A csatornák által tartalmazott repositoryk tárolják, hogy milyen címen érhető el a tükrözendő telepítőforrás, és hogy az adott repositoryt melyik csatornához rendeltük hozzá.
 
 A tesztkörnyezethez is tükröztem telepítési forrásokat. Mivel a gépek többsége openSUSE Leap~15.5-ös verziót használt, ezért az ehhez tartozó csomagok szinkronizálásával kezdtem. Minden alapértelmezett forrást letükröztem, illetve az Uyuni általi menedzselés céljából az Uyuni-csomagokat tartalmazó tárolót is felvettem a szinkronizálandók közé. Az~egyszerűbb kezelés miatt a csatornák hierarchiába szervezhetőek, így csak a kiválasztott szülőcsatornával (base channel) kompatibilis gyermekcsatornákat vehetünk fel egy~adott~klienshez. A tesztkörnyezetben létrehozott telepítőforrás-hierarchiát \aref{fig:software-channel-hierarchy}.~ábra szemlélteti.
 
@@ -91,7 +91,7 @@ A kliensek felvétele során mutatkozott meg az Uyuni egy kisebb hátránya az e
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=15cm]{figures/uyuni-bootstrap-error.png}
-	\caption{Előfizetés nélkül nem érhetőek el a product repository-k.}
+	\caption{Előfizetés nélkül nem érhetőek el a product repositoryk.}
 	\label{fig:uyuni-bootstrap-error}
 \end{figure}
 
